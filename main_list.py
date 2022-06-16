@@ -159,12 +159,6 @@ class main(QWidget):
             return
         self.populate()
 
-        
-        # if not self.tipo_filter_widget.activos.isChecked():
-        #     if not self.tipo_filter_widget.inactivos.isChecked():
-        #         self.tipo_filter_widget.inactivos.setChecked(True)
-        #         return
-        # self.requery()
 
     def inactivos_toggle(self, checked):
         """If activos is unchecked, inactivos will get checked, to make sure at least

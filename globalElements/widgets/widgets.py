@@ -86,7 +86,7 @@ class buttonWidget(QPushButton):
             font.setPointSize(fontSize)
 
         self.setFont(font)
-        self.setMinimumHeight(35)
+        # self.setMinimumHeight(35)
 
         self.setStyleSheet('''
             QPushButton {
@@ -117,8 +117,12 @@ class standardItem(QStandardItem):
         self.font_ = QFont('Calibri', fontSize, weight)
         self.setFont(self.font_)
         self.setText(str(txt))
+        self.setForeground(QColor(colorVar))
         self.setSizeHint(QSize(20,rowHeight))
         self.setEditable(False)
+    
+    def __repr__(self) -> str:
+        return f'standarditem => {self.text()}'
 
 class actionBtn(QAction):
     def __init__(self, text = '', fontSize = 0, icon = ''):
@@ -233,3 +237,4 @@ class checkBox(QCheckBox):
             return "1"
         else:
             return "0"
+

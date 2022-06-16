@@ -127,7 +127,9 @@ class main(QMainWindow):
         one fo the items is checked, then it will requery.
         """
         if not self.tipo_filter_widget.activos.isChecked():
-            self.tipo_filter_widget.inactivos.setChecked(True)
+            if not self.tipo_filter_widget.inactivos.isChecked():
+                self.tipo_filter_widget.inactivos.setChecked(True)
+                return
         self.requery()
 
     def inactivos_toggle(self):
@@ -135,7 +137,9 @@ class main(QMainWindow):
         one fo the items is checked, then it will requery.
         """
         if not self.tipo_filter_widget.inactivos.isChecked():
-            self.tipo_filter_widget.activos.setChecked(True)
+            if not self.tipo_filter_widget.activos.isChecked():
+                self.tipo_filter_widget.activos.setChecked(True)
+                return
         self.requery()
 
 

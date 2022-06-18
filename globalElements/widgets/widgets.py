@@ -17,25 +17,51 @@ class treeView(QTreeView):
         self._rowHeight = rowHeight
         self.standardModel = QStandardItemModel()
         self.rootNode = self.standardModel.invisibleRootItem()
+        
         self.setModel(self.standardModel)
+        self.selection_model = self.selectionModel()
         self.setRootIsDecorated(False)
 
     
 
-    def add_item(self, record):
-        if not isinstance(record, str):
-            record = list(map(lambda text: standardItem(
-                text, self._fontSize, self._rowHeight), record))
-        else:
-            record = standardItem(record, self._fontSize, self._rowHeight)
+    def add_item(self, record, color_var ='#000000',  weight = 400):
+        """Converts record provided to standardItem and appends a new row. 
+
+        Args:
+            record (iterable): list of strings. 
+            colorVar (str, optional): css hex or color value for text . Defaults to '#000000'.
+            weight (int, optional): font weight. Defaults to 400.
+        """
+        # if not isinstance(record, str):
+        record = list(map(lambda text: 
+            standardItem(text, self._fontSize, self._rowHeight, color_var, weight),
+            record))
+        # else:
+        #     record = standardItem(record, self._fontSize, self._rowHeight)
         self.rootNode.appendRow(record)
 
-    def add_items(self, records):
+    def add_items(self, records, color_var ='#000000',  weight = 400):
+        """For record in records, call add_item.  Appends all records to the list.
+
+        Args:
+            records (iterable): a list of lists to be addes ad records. 
+            colorVar (str, optional): css hex or color value for text . Defaults to '#000000'.
+            weight (int, optional): font weight. Defaults to 400.
+        """
+        # map(lambda r: self.add_item(r, color_var, weight), records)
         for i in records:
-            self.add_item(i)
+            self.add_item(i, color_var, weight)
 
     def remove_all_items(self):
         self.standardModel.removeRows(0, self.standardModel.rowCount())
+    
+    def get_values(self)-> list:
+        """Returns:
+            list: returns of list of values for the selected record
+        """
+        indexes = self.selection_model.selectedIndexes()
+        values = list(map(lambda i: i.data(), indexes))
+        return values
 
 class spacer(QLabel):
     def __init__(self, text='', size="h1"):

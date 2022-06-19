@@ -53,16 +53,17 @@ class main(QWidget):
         self.tipo_filter_widget.activos.toggled.connect(self.activos_toggle)
         self.tipo_filter_widget.inactivos.toggled.connect(self.inactivos_toggle)
         self.tipo_filter_widget.search.txt.textChanged.connect(self.apply_search)
+        self.tipo_filter_widget.btn_folder.pressed.connect(self.openFolder)
 
     def config_main_list(self):
         """Configuration of main list items (Juicios)
         """
-        self.main_list = mainList()
+        self.list = mainList()
         self.proxy_tipo = QSortFilterProxyModel()
-        self.proxy_tipo.setSourceModel(self.main_list.list.standardModel)
+        self.proxy_tipo.setSourceModel(self.list.list.standardModel)
         self.proxy_search = QSortFilterProxyModel()
         self.proxy_search.setSourceModel(self.proxy_tipo)
-        self.main_list.list.setModel(self.proxy_search)
+        self.list.list.setModel(self.proxy_search)
 
 
 
@@ -70,10 +71,12 @@ class main(QWidget):
     def config_layout(self):
         """Configuration of the layout of all widets"""
         self.tipo_filter_widget = filtersWidget()
+        self.form = form()
         # self.centralWidget_ = QWidget()
         self.layout_ = QHBoxLayout()
         self.layout_.addWidget(self.tipo_filter_widget)
-        self.layout_.addWidget(self.main_list,1)
+        self.layout_.addWidget(self.list,1)
+        self.layout_.addWidget(self.form,1)
         self.setLayout(self.layout_)
         # self.setCentralWidget(self.centralWidget_)
 
@@ -153,7 +156,7 @@ class main(QWidget):
         """
         #filter list
         self.filter_items.clear()
-        self.main_list.remove_all_items()
+        self.list.remove_all_items()
         
         # Activos
         if self.activos_checked:
@@ -161,15 +164,17 @@ class main(QWidget):
             self.filter_items.update(self.activos.keys())
             # convert the values of the dict into a tupple with type of juicio
             for k, values in self.activos.items():
-                activos = list(map(lambda v: (k,v), values))
-                self.main_list.add_activos(activos)
+                activos = list(map(lambda v: (k,v, 'Activo'), values))
+                self.list.add_activos(activos)
         
         #inactivos
         if self.inactivos_checked:
             self.filter_items.update(self.inactivos.keys())
             for k, values in self.inactivos.items():
-                inactivos = list(map(lambda v: (k,v), values))
-                self.main_list.add_inactivos(inactivos)
+                inactivos = list(map(lambda v: (k,v, 'Inactivo'), values))
+                self.list.add_inactivos(inactivos)
+
+        self.list.list.setColumnHidden(2, True)
 
         #filter list
         current_value = self.tipo_filter_widget.get_value()
@@ -199,6 +204,17 @@ class main(QWidget):
             return
         self.populate()
 
+    def openFolder(self):
+        record = self.list.get_values()
+        if record:
+            if record[2] == 'Activo': root = constants.ROOT_JUICIOS
+            else: root = constants.ROOT_JUICIOS_ARCHIVADOS
+            folder = f'{root}\{record[0]}\{record[1]}'
+            os.startfile(folder)
+
+
+
+
 class mainList(QWidget):
     """main list of items that contains all the cases with their type.
     info is populated on parent widget requery() -> populate() functions. 
@@ -214,6 +230,7 @@ class mainList(QWidget):
         self.list = treeView()#params fontSize = 13, rowHeight = 42
         self.selection_model = self.list.selectionModel()
         self.list.standardModel.setHorizontalHeaderLabels(['Tipo', 'Expediente'])
+        
         self.list.setColumnWidth(0, 140)
 
         self.layout_ = QVBoxLayout()
@@ -222,8 +239,6 @@ class mainList(QWidget):
         # self.layout_.addWidget(self.activos_filter)
         # self.layout_.addWidget(self.btn_clear)
         self.layout_.addWidget(self.list,1)
-
-    
 
     def add_item(self, item):
         """appends given item to end-bottom of the list
@@ -278,8 +293,10 @@ class filtersWidget(QWidget):
         self.activos_filter.layout_.addWidget(self.inactivos)
         self.search_lbl = labelWidget("Búsqueda:", 14, True)
         self.search = lineEditFilterGroup()
-
-        self.btn_clear = buttonWidget('  Eliminar tipo',13, icon=constants.iconClearFilter)
+        
+        self.btn_folder = buttonWidget('  Abrir carpeta',13, icon=constants.iconOpenFolder)
+        self.btn_folder.setFixedHeight(35)
+        self.btn_clear = buttonWidget('  Eliminar filtro',13, icon=constants.iconClearFilter)
         self.btn_clear.setFixedHeight(35)
         
         self.list = treeView()
@@ -290,6 +307,7 @@ class filtersWidget(QWidget):
         self.layout_.setContentsMargins(0,0,0,0)
         self.setLayout(self.layout_)
         self.layout_.addWidget(self.activos_filter)
+        self.layout_.addWidget(self.btn_folder)
         self.layout_.addWidget(self.search_lbl)
         self.layout_.addWidget(self.search)
         self.layout_.addWidget(self.btn_clear)
@@ -349,6 +367,11 @@ class filtersWidget(QWidget):
             if current_value == text:
                 self.list.setCurrentIndex(index)
             current_row += 1
+
+class form(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setMinimumWidth(500)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

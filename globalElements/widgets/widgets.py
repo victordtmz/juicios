@@ -11,7 +11,15 @@ from PyQt6.QtGui import (QWheelEvent, QFont, QIcon, QCursor, QGuiApplication,
     QTextDocument, QStandardItem, QColor, QBrush, QAction, QStandardItemModel)
 
 class treeView(QTreeView):
+    """inherits from QtreeView class
+    Ordinary standard model tree with no filtering capabilities. 
+
+        Args:
+            fontSize (int, optional): font size to be used at all times for this tree. Defaults to 13.
+            rowHeight (int, optional): row height to be used at all tmes for this tree. Defaults to 42.
+        """
     def __init__(self, fontSize = 13, rowHeight = 42):
+        
         super().__init__()
         self._fontSize = fontSize
         self._rowHeight = rowHeight
@@ -19,7 +27,6 @@ class treeView(QTreeView):
         self.rootNode = self.standardModel.invisibleRootItem()
         
         self.setModel(self.standardModel)
-        self.selection_model = self.selectionModel()
         self.setRootIsDecorated(False)
 
     
@@ -32,12 +39,9 @@ class treeView(QTreeView):
             colorVar (str, optional): css hex or color value for text . Defaults to '#000000'.
             weight (int, optional): font weight. Defaults to 400.
         """
-        # if not isinstance(record, str):
         record = list(map(lambda text: 
             standardItem(text, self._fontSize, self._rowHeight, color_var, weight),
             record))
-        # else:
-        #     record = standardItem(record, self._fontSize, self._rowHeight)
         self.rootNode.appendRow(record)
 
     def add_items(self, records, color_var ='#000000',  weight = 400):
@@ -48,7 +52,6 @@ class treeView(QTreeView):
             colorVar (str, optional): css hex or color value for text . Defaults to '#000000'.
             weight (int, optional): font weight. Defaults to 400.
         """
-        # map(lambda r: self.add_item(r, color_var, weight), records)
         for i in records:
             self.add_item(i, color_var, weight)
 
@@ -59,7 +62,7 @@ class treeView(QTreeView):
         """Returns:
             list: returns of list of values for the selected record
         """
-        indexes = self.selection_model.selectedIndexes()
+        indexes = self.selectionModel().selectedIndexes()
         values = list(map(lambda i: i.data(), indexes))
         return values
 
@@ -138,7 +141,17 @@ class buttonWidget(QPushButton):
 
         
 class standardItem(QStandardItem):
+    """Standard item to be used with treeview widget - to place string elements to constitute a record
+
+        Args:
+            txt (str, optional): String to be placed ->data(). Defaults to ''.
+            fontSize (int, optional): Font size. Defaults to 13.
+            rowHeight (int, optional): Row height. Defaults to 42.
+            colorVar (str, optional): font color. Defaults to '#000000'.
+            weight (int, optional): font weight. Defaults to 400.
+        """
     def __init__(self,  txt='',fontSize = 13, rowHeight=42, colorVar ='#000000', weight = 400):
+        
         super().__init__()
         self.font_ = QFont('Calibri', fontSize, weight)
         self.setFont(self.font_)

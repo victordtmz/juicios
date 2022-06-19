@@ -12,3 +12,4 @@ DB_FILES =f'{ONE_DRIVE}\db\oth'
 ICONS_FOLDER = f'{ONE_DRIVE}\db\oth\icons'
 iconFilter = f'{ICONS_FOLDER}\\filter.png'
 iconClearFilter = f"{ICONS_FOLDER}\clear-filter.png"
+iconOpenFolder = f"{ICONS_FOLDER}\openFolder.png"

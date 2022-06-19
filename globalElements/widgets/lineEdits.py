@@ -35,7 +35,7 @@ class lineEdit(QLineEdit):
         """
         self.clear()
 
-    def getInfo(self):
+    def getInfo(self) -> str:
         """
         Returns:
             string: item text

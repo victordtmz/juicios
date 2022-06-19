@@ -1,8 +1,15 @@
+from globalElements.functions import formatPhoneNo
 from globalElements import constants
 from globalElements.widgets import widgets
-from PyQt6.QtWidgets import (QWidget, QHBoxLayout, QLineEdit)
+from PyQt6.QtWidgets import (QWidget, QHBoxLayout, QLineEdit, QDateEdit)
 # from PyQt6.QtCore import (Qt, QSize, QDate, QDateTime)
-from PyQt6.QtGui import (QFont)
+from PyQt6.QtGui import (QFont, QWheelEvent)
+from PyQt6.QtCore import QDate
+import locale
+locale.setlocale(locale.LC_ALL,"")
+import re
+from datetime import datetime
+from globalElements.widgets.widgets import buttonWidget
 
 class lineEdit(QLineEdit):
     """lineEdit
@@ -108,3 +115,121 @@ class lineEditFilterGroup(QWidget):
 
     def __repr__(self) -> str:
         return 'label, lineEdit, button => filter Group'
+
+class lineEditPhone(lineEdit):
+    def __init__(self, fontSize =13):
+        super().__init__(fontSize)
+        self.firstPass = ''
+        self.textChanged.connect(self.format)
+        
+    
+    def getInfo(self):
+        currentNo = ''.join(re.findall(r'\d',self.text()))
+        return currentNo
+        
+
+    def format(self):
+        inputValue = self.text()
+        inputLength = len(inputValue)
+        if inputLength > 3:
+            #only evauate if more than 3 elements. 
+            currentNo = ''.join(re.findall(r'\d',inputValue))
+            currentNoLength = len(currentNo)
+            # only format if more than 3 digits
+            if currentNoLength > 3:
+                try:
+                    formatedNo = '(%s) %s-%s' % tuple(re.findall(r'\d{4}$|\d{3}',str(currentNo)))
+                    if not formatedNo == inputValue:
+                        self.changeValue(currentNo)
+                except:
+                    self.changeValue(currentNo)
+            
+
+    def changeValue(self,currentNo):
+        PhoneNo = formatPhoneNo(currentNo)
+        self.setText(PhoneNo)
+class lineEditCurrency(lineEdit):
+    def __init__(self, fontSize):
+        super().__init__(fontSize)
+    
+    def getInfo(self):
+        return self.text()
+    
+    def getDbInfo(self):
+        info = self.text()
+        if info:
+            try:
+                info = locale.atof(str(info).strip("$()"))
+                return str(info)
+            except:
+                return ""
+            # print(info)
+            
+    def populate(self, text):
+        if text:
+            text = str(text).strip("()")
+            if "$" in text:
+                self.setText(text)
+            else:
+                amount = float(text)
+                amount = locale.currency(amount, grouping=True)
+                self.setText(amount)
+
+    
+    def reSet(self):
+        self.clear()
+
+class dateEdit(QDateEdit):
+    def __init__(self, fontSize = 13):
+        super().__init__()
+        self.setCalendarPopup(True)
+        self.setDisplayFormat('yyyy-MM-dd')
+        # self.setDate(QDate.currentDate())
+        font = QFont('Calibri', fontSize)
+        self.setFont(font)
+    
+    def wheelEvent(self, e: QWheelEvent) -> None:
+        e.ignore()
+
+    def populate(self, text):
+        try:
+            fecha = datetime.strptime(text, '%Y-%m-%d')
+        except:
+            fecha = datetime(2000,1,1)
+        self.setDate(fecha)
+
+    def reSet(self):
+        fecha = datetime(2000,1,1)
+        self.setDate(fecha)
+
+    def getInfo(self):
+        return self.text()
+
+class dateWidget(QWidget):
+    def __init__(self, fontSize = 13):
+        super().__init__()
+        self.dateEdit = dateEdit(fontSize) 
+        self.btnToday = buttonWidget(icon=constants.iconToday)
+        self.btnToday.setMinimumHeight(30)
+
+        self.layout_ = QHBoxLayout()
+        self.layout_.setSpacing(0)
+        self.layout_.setContentsMargins(0,0,0,0)
+        # self.layout_.addWidget(self.lbl)
+        self.layout_.addWidget(self.dateEdit,1)
+        self.layout_.addWidget(self.btnToday)
+        self.setLayout(self.layout_)
+
+        self.btnToday.pressed.connect(self.btnTodayPressed)
+        
+    def btnTodayPressed(self):
+        self.dateEdit.setDate(QDate.currentDate())
+
+    def populate(self, text):
+        self.dateEdit.populate(text)
+        
+    def reSet(self):
+        self.dateEdit.reSet()
+
+    def getInfo(self):
+        return self.dateEdit.getInfo()

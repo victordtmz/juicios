@@ -13,3 +13,5 @@ ICONS_FOLDER = f'{ONE_DRIVE}\db\oth\icons'
 iconFilter = f'{ICONS_FOLDER}\\filter.png'
 iconClearFilter = f"{ICONS_FOLDER}\clear-filter.png"
 iconOpenFolder = f"{ICONS_FOLDER}\openFolder.png"
+iconToday = f"{ICONS_FOLDER}\\today.png"
+iconSave = f"{ICONS_FOLDER}\\diskette.png"

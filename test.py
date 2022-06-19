@@ -1,15 +1,11 @@
 import sys
-from globalElements.widgets.lineEdits import lineEdit
-from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout)
+from PyQt6.QtWidgets import (QApplication)
+from main_list import main
 
-# edit = lineEdit()
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    mw = lineEdit()
-    print('Hellow World')
-    print(mw)
-    print(mw.__doc__)
-    # mw.show()
-    # sys.exit(app.exec())
+    mw = main.main()
+    mw.show()
+    sys.exit(app.exec())

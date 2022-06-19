@@ -277,3 +277,20 @@ class checkBox(QCheckBox):
         else:
             return "0"
 
+class textEdit(QTextEdit):
+    def __init__(self, fontSize=11):
+        super().__init__()
+        font = QFont('Calibri', fontSize)
+        self.setFont(font)
+        self.setMinimumHeight(170)
+
+    def populate(self, text):
+        self.setText(text)
+    
+    def reSet(self):
+        self.clear()
+
+    def getInfo(self):
+        return self.toPlainText()
+
+   

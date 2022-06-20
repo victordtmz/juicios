@@ -164,14 +164,14 @@ class main(QWidget):
             self.filter_items.update(self.activos.keys())
             # convert the values of the dict into a tupple with type of juicio
             for k, values in self.activos.items():
-                activos = list(map(lambda v: (k,v, 'Activo'), values))
+                activos = list(map(lambda v: (k,v, 'Juicios'), values))
                 self.list.add_activos(activos)
         
         #inactivos
         if self.inactivos_checked:
             self.filter_items.update(self.inactivos.keys())
             for k, values in self.inactivos.items():
-                inactivos = list(map(lambda v: (k,v, 'Inactivo'), values))
+                inactivos = list(map(lambda v: (k,v, 'Juicios_archivados'), values))
                 self.list.add_inactivos(inactivos)
 
         self.list.list.setColumnHidden(2, True)
@@ -207,9 +207,10 @@ class main(QWidget):
     def openFolder(self):
         record = self.list.get_values()
         if record:
-            if record[2] == 'Activo': root = constants.ROOT_JUICIOS
-            else: root = constants.ROOT_JUICIOS_ARCHIVADOS
-            folder = f'{root}\{record[0]}\{record[1]}'
+            # if record[2] == 'Activo': root = constants.ROOT_JUICIOS
+            # else: root = constants.ROOT_JUICIOS_ARCHIVADOS
+            root = f''
+            folder = f'{constants.ROOT_ENLACE}\{record[2]}\{record[0]}\{record[1]}'
             os.startfile(folder)
 
 

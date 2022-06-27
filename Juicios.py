@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (QApplication,  QHBoxLayout,
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSortFilterProxyModel, QRegularExpression
 from globalElements import constants, functions
-from globalElements.widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox,lineEditFilterGroup
+from widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox
 # import mainList
 
 

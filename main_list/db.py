@@ -11,6 +11,7 @@ class main:
         self.tbl_registros = 'registros'
         self.tbl_detalles = 'detalles'
         self.OneDrive = os.path.expanduser('~\OneDrive')
+        self.expediente = []
 
 
     
@@ -42,13 +43,48 @@ class main:
             );
         '''
         
+        
+        
 
-    def connect(self, expediente: Iterable):
+    def connect(self):
         #expediente (Tipo, Juicio, Activo)
-        database = f'{database}\enlace\{expediente[2]}\{expediente[0]}\{expediente[1]}\desgloce\\registros.avd'
-        self.connection = sqlite3.connect(database)
+        database = f'{self.OneDrive}\enlace\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}\desgloce\\registros.avd'
+        # print(database)
+        try: 
+            self.connection = sqlite3.connect(database)
+        except: 
+            os.mkdir(f'{self.OneDrive}\enlace\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}\desgloce')
+            self.connection = sqlite3.connect(database)
         self.cursor = self.connection.cursor()
 
+    def execute(self, sql:str):
+        self.connect()
+        self.cursor.execute(sql)
+        self.connection.close()
+
+    def select(self, sql:str):
+        self.connect()
+        records = self.cursor.execute(sql)
+        records = records.fetchall()
+        self.connection.close()
+        return records
+    
+    def select_detalles(self):
+        sql = f''' --sql
+        SELECT * FROM {self.tbl_detalles};''' 
+        try: 
+            record = self.select(sql)[0]
+            return record
+            
+        except: 
+            pass
+            # self.execute(self.create_detalles_table)
+            # record = self.select(sql)[0] 
+        # return record
+    def save_detalles(self, detalles):
+        print(detalles)
+
+        
     
 
     

@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import ( QWidget, QVBoxLayout)
 from globalElements import constants
-from globalElements.widgets.widgets import spacer, buttonWidget, labelWidget, titleBox, treeView, checkBox
-from globalElements.widgets.lineEdits import lineEditFilterGroup
+from widgets.widgets import spacer, buttonWidget, labelWidget, titleBox, treeView, checkBox
+from widgets.lineEdits import lineEditFilterGroup
 
 
 class main(QWidget):

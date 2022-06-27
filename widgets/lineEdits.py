@@ -1,6 +1,6 @@
 from globalElements.functions import formatPhoneNo
 from globalElements import constants
-from globalElements.widgets import widgets
+from widgets import widgets
 from PyQt6.QtWidgets import (QWidget, QHBoxLayout, QLineEdit, QDateEdit)
 # from PyQt6.QtCore import (Qt, QSize, QDate, QDateTime)
 from PyQt6.QtGui import (QFont, QWheelEvent)
@@ -9,7 +9,7 @@ import locale
 locale.setlocale(locale.LC_ALL,"")
 import re
 from datetime import datetime
-from globalElements.widgets.widgets import buttonWidget
+from widgets.widgets import buttonWidget
 
 class lineEdit(QLineEdit):
     """lineEdit
@@ -35,7 +35,7 @@ class lineEdit(QLineEdit):
         Args:
             text (string): text to populate
         """
-        self.setText(text)
+        self.setText(str(text))
     
     def reSet(self):
         """sets the current value to ""
@@ -48,6 +48,9 @@ class lineEdit(QLineEdit):
             string: item text
         """
         return self.text()
+
+    def getDbInfo(self):
+        return self.getInfo()
 
     def __repr__(self) -> str:
         return f'QLineEdit [text] => {self.text()}'
@@ -68,8 +71,8 @@ class lineEditFilterGroup(QWidget):
         
         super().__init__()
         self.txt = lineEdit(fontSize)
-        self.btn = widgets.buttonWidget(icon=constants.iconClearFilter)
-        self.btn.setFixedSize(30, fontSize * 2)
+        self.btn = widgets.buttonWidget(icon=constants.iconClearFilter, size='icon')
+        # self.btn.setFixedSize(30, fontSize * 2)
         self.layout_ = QHBoxLayout()
         self.layout_.setSpacing(0)
         self.layout_.setContentsMargins(0,0,0,0)
@@ -108,6 +111,9 @@ class lineEditFilterGroup(QWidget):
             string: content of 'txt' widget"""
         return self.txt.text()
 
+    def getDbInfo(self):
+        return self.getInfo()
+
     def currentText(self):
         """Returns:
             string: content of 'txt' widget"""
@@ -126,6 +132,9 @@ class lineEditPhone(lineEdit):
     def getInfo(self):
         currentNo = ''.join(re.findall(r'\d',self.text()))
         return currentNo
+
+    def getDbInfo(self):
+        return self.getInfo()
         
 
     def format(self):
@@ -205,12 +214,15 @@ class dateEdit(QDateEdit):
     def getInfo(self):
         return self.text()
 
+    def getDbInfo(self):
+        return self.getInfo()
+
 class dateWidget(QWidget):
     def __init__(self, fontSize = 13):
         super().__init__()
         self.dateEdit = dateEdit(fontSize) 
-        self.btnToday = buttonWidget(icon=constants.iconToday)
-        self.btnToday.setMinimumHeight(30)
+        self.btnToday = buttonWidget(icon=constants.iconToday, size='icon')
+        # self.btnToday.setMinimumHeight(30)
 
         self.layout_ = QHBoxLayout()
         self.layout_.setSpacing(0)
@@ -233,3 +245,9 @@ class dateWidget(QWidget):
 
     def getInfo(self):
         return self.dateEdit.getInfo()
+
+    def getDbInfo(self):
+        return self.getInfo()
+
+    def __repr__(self) -> str:
+        return 'dateEdit with "today" button'

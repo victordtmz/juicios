@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout)
-from globalElements.widgets.treeviews import treeView
+from widgets.treeviews import treeView
 
 class main(QWidget):
     """main list of items that contains all the cases with their type.

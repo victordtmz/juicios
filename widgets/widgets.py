@@ -1,5 +1,6 @@
 
 import string
+from tkinter.ttk import Style
 from globalElements import constants
 from PyQt6.QtWidgets import (QWidget, QLabel, QPushButton, QSizePolicy,
     QComboBox, QCompleter, QHBoxLayout, QGroupBox, QGridLayout, QRadioButton,
@@ -100,7 +101,7 @@ class titleBox(QWidget):
 
 
 class buttonWidget(QPushButton):
-    def __init__(self, text="", fontSize=0, icon=""):
+    def __init__(self, text:str="", fontSize:int=0, icon:str="", size:str='h1'):
         super().__init__()
         cursor = QCursor(Qt.CursorShape.PointingHandCursor)
         self.setCursor(cursor)
@@ -113,29 +114,78 @@ class buttonWidget(QPushButton):
             self.setText(text)
         if fontSize:
             font.setPointSize(fontSize)
-
         self.setFont(font)
-        # self.setMinimumHeight(35)
 
-        self.setStyleSheet('''
-            QPushButton {
-                background-color: #002142;
-                color :white  ;
-                padding-right: 15px;
-                padding-left: 15px;
-                margin: 0;
-                border-style: none;
-                }
-            
-            QPushButton:pressed {
-                background-color: rgba(0,51,0,.2);
-                color : Black ;
-                }
+        match size.lower():
+            case 'h1':
+                self.setMinimumHeight(32)
+                style = '''
+                    QPushButton {
+                        background-color: #002142;
+                        color :white  ;
+                        padding-right: 15px;
+                        padding-left: 15px;
+                        margin: 0;
+                        border-style: none;
+                        }
+                    
+                    QPushButton:pressed {
+                        background-color: rgba(0,51,0,.2);
+                        color : Black ;
+                        }
 
-            QPushButton:hover:!pressed { 
-                text-decoration: underline;
-                }
-        ''')
+                    QPushButton:hover:!pressed { 
+                        text-decoration: underline;
+                        }
+                    '''
+            case 'h2':
+                self.setMinimumHeight(28)
+                style = '''
+                    QPushButton {
+                        background-color: #003D7A;
+                        color :white  ;
+                        padding-right: 15px;
+                        padding-left: 15px;
+                        margin: 0;
+                        border-style: none;
+                        }
+                    
+                    QPushButton:pressed {
+                        background-color: rgba(0,51,0,.2);
+                        color : Black ;
+                        }
+
+                    QPushButton:hover:!pressed { 
+                        text-decoration: underline;
+                        
+                        }
+                    '''
+            case 'icon':
+                self.setFixedSize(25,25)
+                style = '''
+                    QPushButton {
+                        background-color: #dce5fc;
+                        color :white  ;
+                        padding-right: 15px;
+                        padding-left: 15px;
+                        margin: 0;
+                        border-style: solid;
+                        border-width: 1px;
+                        border-color: #b5b5b5;
+                        }
+                    
+                    QPushButton:pressed {
+                        background-color: rgba(0,51,0,.2);
+                        color : Black ;
+                        }
+
+                    QPushButton:hover:!pressed { 
+                        text-decoration: underline;
+                        background-color: #a7bffc;
+                        }
+                    '''
+
+        self.setStyleSheet(style)
 
         
 
@@ -239,6 +289,9 @@ class labelWidget(QLabel):
             elif align == "right":
                 self.setAlignment(Qt.AlignmentFlag.AlignRight)
 
+    def __repr__(self) -> str:
+        return f'labelWidget => {self.text()}'
+
 class checkBox(QCheckBox):
     def __init__(self, text='', fontSize = 0, size=''):
         super().__init__()
@@ -292,5 +345,11 @@ class textEdit(QTextEdit):
 
     def getInfo(self):
         return self.toPlainText()
+    
+    def getDbInfo(self):
+        return self.getInfo()
+
+    def __repr__(self) -> str:
+        return 'textEdit - Large text widget'
 
    

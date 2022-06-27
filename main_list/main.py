@@ -4,9 +4,9 @@ from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout)
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSortFilterProxyModel, QRegularExpression
 from globalElements import constants, functions
-from globalElements.widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox
-from globalElements.widgets.lineEdits import lineEditFilterGroup
-from main_list import filters, form, list_
+from widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox
+from widgets.lineEdits import lineEditFilterGroup
+from main_list import filters, form, list_, db
 # import mainList
 
 
@@ -31,6 +31,9 @@ class main(QWidget):
         self.initUi()
         self.requery()
 
+        self.db = db.main()
+        # self.db.select_detalles()
+
     
     def __repr__(self) -> str:
         return '''Main Window => Juicios y Trámites'''
@@ -54,6 +57,8 @@ class main(QWidget):
         self.filters.inactivos.toggled.connect(self.inactivos_toggle)
         self.filters.search.txt.textChanged.connect(self.apply_search)
         self.filters.btn_folder.pressed.connect(self.openFolder)
+        self.list.list.selectionModel().selectionChanged.connect(self.selectionChanged)
+        self.form.btnSave.pressed.connect(self.save_detalles)
 
     def config_main_list(self):
         """Configuration of main list items (Juicios)
@@ -209,9 +214,23 @@ class main(QWidget):
         if record:
             # if record[2] == 'Activo': root = constants.ROOT_JUICIOS
             # else: root = constants.ROOT_JUICIOS_ARCHIVADOS
-            root = f''
+            # root = f''
             folder = f'{constants.ROOT_ENLACE}\{record[2]}\{record[0]}\{record[1]}'
             os.startfile(folder)
+
+    def selectionChanged(self):
+        self.db.expediente = self.list.get_values()
+        self.db.connect()
+        detalles = self.db.select_detalles()
+        if detalles:
+            self.form.populate(detalles)
+        else:
+            self.form.clear()
+
+    def save_detalles(self):
+        detalles = self.form.get_info()
+        self.db.save_detalles(detalles)
+
 
 
 

@@ -18,10 +18,8 @@ class main(QWidget):
         self.search_lbl = labelWidget("Búsqueda:", 14, True)
         self.search = lineEditFilterGroup()
         
-        self.btn_folder = buttonWidget('  Abrir carpeta',13, icon=constants.iconOpenFolder)
-        self.btn_folder.setFixedHeight(35)
+        
         self.btn_clear = buttonWidget('  Eliminar filtro',13, icon=constants.iconClearFilter)
-        self.btn_clear.setFixedHeight(35)
         
         self.list = treeView()
         self.selection_model = self.list.selectionModel()
@@ -31,7 +29,7 @@ class main(QWidget):
         self.layout_.setContentsMargins(0,0,0,0)
         self.setLayout(self.layout_)
         self.layout_.addWidget(self.activos_filter)
-        self.layout_.addWidget(self.btn_folder)
+        # self.layout_.addWidget(self.btn_folder)
         self.layout_.addWidget(self.search_lbl)
         self.layout_.addWidget(self.search)
         self.layout_.addWidget(self.btn_clear)
@@ -90,4 +88,5 @@ class main(QWidget):
             current_value = model.data(index)
             if current_value == text:
                 self.list.setCurrentIndex(index)
+                break
             current_row += 1

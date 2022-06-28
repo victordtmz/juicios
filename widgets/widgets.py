@@ -208,7 +208,8 @@ class standardItem(QStandardItem):
         self.setText(str(txt))
         self.setForeground(QColor(colorVar))
         self.setSizeHint(QSize(20,rowHeight))
-        self.setEditable(False)
+        self.setEditable(True)
+        
     
     def __repr__(self) -> str:
         return f'standarditem => {self.text()}'
@@ -353,3 +354,16 @@ class textEdit(QTextEdit):
         return 'textEdit - Large text widget'
 
    
+class deleteWarningBox(QMessageBox): 
+    def __init__(self, text='', fontSize=13):
+        super().__init__()
+        self.iconAVD = QIcon( f'{constants.ICONS_FOLDER}\enlace.png')
+        self.setWindowTitle('Eliminar registro')
+        self.setWindowIcon(QIcon(f'{constants.ICONS_FOLDER}\enlace.png'))
+        self.setText(text)
+        # self.setStyleSheet("QLabel{min-width: 200px;}")
+        # self.setInformativeText('Continue?')
+        font = QFont('Calibri', fontSize)
+        self.setFont(font)
+        self.setStandardButtons(QMessageBox.StandardButton.Ok)
+        self.setIcon(QMessageBox.Icon.Information)

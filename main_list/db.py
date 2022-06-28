@@ -48,14 +48,15 @@ class main:
 
     def connect(self):
         #expediente (Tipo, Juicio, Activo)
-        database = f'{self.OneDrive}\enlace\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}\desgloce\\registros.avd'
+        if self.expediente:
+            database = f'{self.OneDrive}\enlace\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}\desgloce\\registros.avd'
         # print(database)
-        try: 
-            self.connection = sqlite3.connect(database)
-        except: 
-            os.mkdir(f'{self.OneDrive}\enlace\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}\desgloce')
-            self.connection = sqlite3.connect(database)
-        self.cursor = self.connection.cursor()
+            try: 
+                self.connection = sqlite3.connect(database)
+            except: 
+                os.mkdir(f'{self.OneDrive}\enlace\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}\desgloce')
+                self.connection = sqlite3.connect(database)
+            self.cursor = self.connection.cursor()
 
     def execute(self, sql:str):
         self.connect()

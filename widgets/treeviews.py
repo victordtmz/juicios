@@ -87,7 +87,7 @@ class standardItem(QStandardItem):
         self.setText(str(txt))
         self.setForeground(QColor(colorVar))
         self.setSizeHint(QSize(20,rowHeight))
-        self.setEditable(False)
+        self.setEditable(True)
     
     def __repr__(self) -> str:
         return f'standarditem => {self.text()}'

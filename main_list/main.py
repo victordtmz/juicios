@@ -1,17 +1,21 @@
+import shutil
 import sys
 import os
-from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout)
+from urllib import response
+from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout, QStatusBar, QMainWindow)
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSortFilterProxyModel, QRegularExpression
 from globalElements import constants, functions
+from widgets import widgets
 from widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox
 from widgets.lineEdits import lineEditFilterGroup
-from main_list import filters, form, list_, db
+from main_list import filters, form, list_, db, edit_form, delete_form
+
 # import mainList
 
 
 
-class main(QWidget):
+class main(QMainWindow):
     """it takes bot widgets, mainLis and filterList into this widget, populating both lists and 
     adding functionality (filter application, removal, search)
 
@@ -45,6 +49,9 @@ class main(QWidget):
         self.setWindowTitle('Enlace LLC - Juicios y Trámites')
         self.iconEnlace = QIcon( f'{constants.DB_FILES}\icons\enlace_juicios.png')
         self.setWindowIcon(self.iconEnlace)
+        self.status_bar = QStatusBar()
+        self.status_bar.setContentsMargins(0,0,0,0)
+        self.setStatusBar(self.status_bar)
         # self.tipo_filters()
         self.config_main_list()
         self.config_layout()
@@ -56,9 +63,12 @@ class main(QWidget):
         self.filters.activos.toggled.connect(self.activos_toggle)
         self.filters.inactivos.toggled.connect(self.inactivos_toggle)
         self.filters.search.txt.textChanged.connect(self.apply_search)
-        self.filters.btn_folder.pressed.connect(self.openFolder)
         self.list.list.selectionModel().selectionChanged.connect(self.selectionChanged)
         self.form.btnSave.pressed.connect(self.save_detalles)
+        self.list.btn_requery.pressed.connect(self.requery)
+        self.list.btn_new.pressed.connect(self.new_item)
+        self.list.btn_delete.pressed.connect(self.delete_warning)
+
 
     def config_main_list(self):
         """Configuration of main list items (Juicios)
@@ -77,13 +87,13 @@ class main(QWidget):
         """Configuration of the layout of all widets"""
         self.filters = filters.main()
         self.form = form.main()
-        # self.centralWidget_ = QWidget()
+        self.centralWidget_ = QWidget()
         self.layout_ = QHBoxLayout()
         self.layout_.addWidget(self.filters)
         self.layout_.addWidget(self.list,1)
         self.layout_.addWidget(self.form,1)
-        self.setLayout(self.layout_)
-        # self.setCentralWidget(self.centralWidget_)
+        self.centralWidget_.setLayout(self.layout_)
+        self.setCentralWidget(self.centralWidget_)
 
     def apply_filter_tipo(self):
         """When selection changes of case list (civil, administrativo, migratorio, etc), 
@@ -129,6 +139,7 @@ class main(QWidget):
             - Second pass will get the sub-folders and place each as the case to be attended. 
         """
         #obtener all elements from activos
+        self.activos.clear()
         for folder in os.scandir(constants.ROOT_JUICIOS):
             if folder.is_dir():
                 tipo = folder.name
@@ -141,6 +152,7 @@ class main(QWidget):
                             self.activos[tipo] = [expediente]
 
         # Obtener all elements from inactivos
+        self.inactivos.clear()
         for folder in os.scandir(constants.ROOT_JUICIOS_ARCHIVADOS):
             if folder.is_dir():
                 tipo = folder.name
@@ -209,14 +221,7 @@ class main(QWidget):
             return
         self.populate()
 
-    def openFolder(self):
-        record = self.list.get_values()
-        if record:
-            # if record[2] == 'Activo': root = constants.ROOT_JUICIOS
-            # else: root = constants.ROOT_JUICIOS_ARCHIVADOS
-            # root = f''
-            folder = f'{constants.ROOT_ENLACE}\{record[2]}\{record[0]}\{record[1]}'
-            os.startfile(folder)
+    
 
     def selectionChanged(self):
         self.db.expediente = self.list.get_values()
@@ -227,9 +232,71 @@ class main(QWidget):
         else:
             self.form.clear()
 
+
     def save_detalles(self):
         detalles = self.form.get_info()
         self.db.save_detalles(detalles)
+
+    def new_item(self):
+        self.edit_form = edit_form.main()
+        items = list(self.filter_items)
+        self.edit_form.setWindowTitle('Agregar nuevo elemento')
+        items.insert(0,"")
+        self.edit_form.tipo.addItems(items)
+        self.edit_form.btn_save.pressed.connect(self.save_new)
+
+        self.edit_form.exec()
+
+    def save_new(self):
+        tipo = self.edit_form.tipo.getInfo()
+        expediente = self.edit_form.expediente.getInfo()
+        database = f'{constants.ROOT_JUICIOS}\{tipo}\{expediente}'
+        os.mkdir(database)
+        self.edit_form.deleteLater()
+        self.requery()
+        # self.list.find_item(expediente)
+        #find item
+        model = self.proxy_search
+        no_records= model.rowCount()
+        current_row = 0
+        while current_row < no_records:
+            index = model.index(current_row, 1)
+            current_value = model.data(index)
+            if current_value == expediente:
+                self.list.list.setCurrentIndex(index)
+                break
+            current_row += 1
+    
+    def delete_warning(self):
+        folder = self.list.get_file_path()
+        if folder:
+            self.delete_warning_box = delete_form.main()
+            self.delete_warning_box.btn_delete.pressed.connect(lambda: self.delete_item(folder))
+            self.delete_warning_box.exec()
+
+        else:
+            msg = widgets.deleteWarningBox('Seleccione el registro que desea eliminar.', 13)   
+            msg.exec()         
+            
+            # self.list.list.clearSelection()
+            # self.db.connection.close()
+            # shutil.rmtree(folder)
+            # self.requery()
+
+    def delete_item(self, folder):
+        pwd = self.delete_warning_box.pwd.getInfo()
+        if pwd == '202020':
+            self.delete_warning_box.deleteLater()
+            self.list.list.clearSelection()
+            self.db.connection.close()
+            shutil.rmtree(folder)
+            self.requery()
+            self.status_bar.showMessage(f'Se ha eliminado el registro siguente:   {folder}', 4000)
+        else:
+            wrong_password_message = labelWidget('Contraseña erronea', 13,False,'red')
+            self.delete_warning_box.layout_.insertRow(1, wrong_password_message)
+    
+        
 
 
 

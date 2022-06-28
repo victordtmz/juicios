@@ -1,0 +1,4 @@
+Configurar 'Nuevo' - validate data. 
+
+Agregar button para archivar/desarchivar.
+Agregar button para cambiar nombre. 

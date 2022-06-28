@@ -52,11 +52,13 @@ class main(QWidget):
         self.btn_requery = buttonWidget('  Refresh', 13, constants.iconRefresh)
         self.btn_new = buttonWidget('   Nuevo', 13, constants.iconNew)
         self.btn_delete = buttonWidget('  Eliminar', 13, constants.iconDelete)
+        self.btn_edit = buttonWidget(' Editar', 13)
 
         self.heading_layout.addWidget(self.btn_requery)
         self.heading_layout.addWidget(self.btn_folder)
         self.heading_layout.addWidget(self.btn_new)
         self.heading_layout.addWidget(self.btn_delete)
+        self.heading_layout.addWidget(self.btn_edit)
 
             
 
@@ -87,7 +89,10 @@ class main(QWidget):
         """Gets the values for the selected record
 
         Returns:
-            list: list of string values selected
+            list: list of string values selected ()
+            0 => Tipo; data: case category. 
+            1 => Expediente; data: Client name with short case explanation.
+            2 => Activos; data: Actio or inactivo - for loading.
         """
         return self.list.get_values()
 
@@ -114,9 +119,11 @@ class main(QWidget):
             return folder
     
     def open_folder(self):
-        folder = self.get_file_path()
+        folder = self.get_file_path() 
         if folder:
             os.startfile(folder)
+
+   
     
     # def delete(self):
         

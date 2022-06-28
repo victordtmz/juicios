@@ -7,6 +7,7 @@ from widgets.lineEdits import (lineEdit,
 from widgets.widgets import textEdit, buttonWidget, labelWidget
 from globalElements import constants
 from widgets.comboBoxes import cbo
+from widgets.radioButtons import activoRadioButtons
 
 class main(QDialog):
     def __init__(self):
@@ -23,6 +24,7 @@ class main(QDialog):
         
         self.tipo = cbo(self.fontSize)
         self.expediente = lineEdit(self.fontSize)
+        self.activo = activoRadioButtons()
         self.configure_buttons()
 
         
@@ -32,6 +34,7 @@ class main(QDialog):
         self.layout_.setVerticalSpacing(10)
         self.layout_.addRow(labelWidget('Tipo:', self.fontSize) ,self.tipo)
         self.layout_.addRow(labelWidget('Expediente:', self.fontSize) ,self.expediente)
+        self.layout_.addRow(self.activo)
         self.layout_.addItem(self.spacer)
         self.layout_.addRow(self.btn_widget)
 

@@ -90,3 +90,7 @@ class main(QWidget):
                 self.list.setCurrentIndex(index)
                 break
             current_row += 1
+
+    def remove_all_filters(self):
+        self.list.clearSelection()
+        self.search.txt.clear()

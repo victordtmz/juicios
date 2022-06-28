@@ -1,6 +1,9 @@
+from cmath import exp
 import shutil
 import sys
 import os
+from turtle import Turtle
+from typing import Iterable
 from urllib import response
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout, QStatusBar, QMainWindow)
 from PyQt6.QtGui import QIcon
@@ -67,7 +70,8 @@ class main(QMainWindow):
         self.form.btnSave.pressed.connect(self.save_detalles)
         self.list.btn_requery.pressed.connect(self.requery)
         self.list.btn_new.pressed.connect(self.new_item)
-        self.list.btn_delete.pressed.connect(self.delete_warning)
+        self.list.btn_delete.pressed.connect(self.delete_window_open)
+        self.list.btn_edit.pressed.connect(self.edit_window_open)
 
 
     def config_main_list(self):
@@ -239,6 +243,7 @@ class main(QMainWindow):
 
     def new_item(self):
         self.edit_form = edit_form.main()
+        self.edit_form.activo.populate('Juicios')
         items = list(self.filter_items)
         self.edit_form.setWindowTitle('Agregar nuevo elemento')
         items.insert(0,"")
@@ -250,24 +255,52 @@ class main(QMainWindow):
     def save_new(self):
         tipo = self.edit_form.tipo.getInfo()
         expediente = self.edit_form.expediente.getInfo()
-        database = f'{constants.ROOT_JUICIOS}\{tipo}\{expediente}'
-        os.mkdir(database)
+        activo = self.edit_form.activo.getInfo()
+        folder_path = f'{constants.ROOT_ENLACE}\{activo}\{tipo}\{expediente}'
+        os.mkdir(folder_path)
         self.edit_form.deleteLater()
         self.requery()
+        self.find_select_item_removing_filters([tipo, expediente, activo])
         # self.list.find_item(expediente)
         #find item
+        # self.remove_all_filters()
+        
+
+
+    def find_select_item_removing_filters(self, expediente:list):
+        index = self.find_item(expediente)
+        if index:
+            self.list.list.setCurrentIndex(index)
+        else:
+            self.filters.list.clearSelection()
+            index = self.find_item(expediente)
+            if index:
+                self.list.list.setCurrentIndex(index)
+            else:
+                self.filters.search.txt.clear()
+                index = self.find_item(expediente)
+                if index:
+                    self.list.list.setCurrentIndex(index)
+                else: 
+                    self.filters.activos.setChecked(True)
+                    self.filters.inactivos.setChecked(True)
+                    index = self.find_item(expediente)
+                    if index:
+                        self.list.list.setCurrentIndex(index)
+
+
+    def find_item(self, expediente:list):
         model = self.proxy_search
         no_records= model.rowCount()
         current_row = 0
         while current_row < no_records:
-            index = model.index(current_row, 1)
-            current_value = model.data(index)
-            if current_value == expediente:
-                self.list.list.setCurrentIndex(index)
-                break
+            indexes = (model.index(current_row, 0),model.index(current_row, 1),model.index(current_row, 2))
+            current_values = list(map(lambda x: model.data(x),indexes))
+            if current_values == expediente:
+                return indexes[0]
             current_row += 1
     
-    def delete_warning(self):
+    def delete_window_open(self):
         folder = self.list.get_file_path()
         if folder:
             self.delete_warning_box = delete_form.main()
@@ -295,6 +328,62 @@ class main(QMainWindow):
         else:
             wrong_password_message = labelWidget('Contraseña erronea', 13,False,'red')
             self.delete_warning_box.layout_.insertRow(1, wrong_password_message)
+
+    def edit_window_open(self):
+        current_info = self.list.get_values()
+        if current_info:
+        #prepare form
+            self.edit_form = edit_form.main()
+            items = list(self.filter_items)
+            self.edit_form.setWindowTitle('Editar el elemento seleccionado')
+            items.insert(0,"")
+            self.edit_form.tipo.addItems(items)
+            #populate form. 
+            
+            self.edit_form.tipo.populate(current_info[0])
+            self.edit_form.expediente.populate(current_info[1])
+            self.edit_form.activo.populate(current_info[2])
+            self.edit_form.btn_save.pressed.connect(lambda: self.save_edit(current_info))
+
+            self.edit_form.exec()
+        else:
+            msg = widgets.deleteWarningBox('Seleccione el registro que desea editar.', 13)   
+            msg.exec()  
+
+        
+        # folder = self.list.get_file_path()
+        # if folder:
+        #     self.delete_warning_box = delete_form.main()
+        #     self.delete_warning_box.btn_delete.pressed.connect(lambda: self.delete_item(folder))
+        #     self.delete_warning_box.exec()
+
+        # else:
+        #     msg = widgets.deleteWarningBox('Seleccione el registro que desea eliminar.', 13)   
+        #     msg.exec()   
+
+    def save_edit(self, current_info):
+        tipo = self.edit_form.tipo.getInfo()
+        expediente = self.edit_form.expediente.getInfo()
+        activo = self.edit_form.activo.getInfo()
+        if tipo.strip() != current_info[0].strip() or expediente.strip() != current_info[1].strip():
+            current_path = f'{constants.ROOT_ENLACE}\{current_info[2]}\{current_info[0]}\{current_info[1]}'
+            new_path = f'{constants.ROOT_ENLACE}\{activo}\{tipo}\{expediente}'
+            self.list.list.clearSelection()
+            self.db.connection.close()
+            shutil.move(current_path, new_path)
+            self.requery()
+            self.remove_all_filters()
+            # self.find_item([tipo, expediente, activo])
+            self.find_select_item_removing_filters([tipo, expediente, activo])
+            self.status_bar.showMessage(f'Se ha movido el registro a:   {new_path}', 4000)
+        else: 
+            self.status_bar.showMessage(f'No se ha movido el registro, los datos proporcinados son los mismos')
+        self.edit_form.deleteLater()
+
+    def remove_all_filters(self):
+        self.filters.remove_all_filters()
+
+
     
         
 

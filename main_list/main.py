@@ -225,7 +225,7 @@ class main(QMainWindow):
             return
         self.populate()
 
-    
+     
 
     def selectionChanged(self):
         self.db.expediente = self.list.get_values()
@@ -370,7 +370,10 @@ class main(QMainWindow):
             new_path = f'{constants.ROOT_ENLACE}\{activo}\{tipo}\{expediente}'
             self.list.list.clearSelection()
             self.db.connection.close()
-            shutil.move(current_path, new_path)
+            try:
+                shutil.move(current_path, new_path)
+            except:
+                self.status_bar.showMessage(f'Se produjo un error, verifica archivos y termina el proceso manualmente:   {new_path}', 10000)
             self.requery()
             self.remove_all_filters()
             # self.find_item([tipo, expediente, activo])

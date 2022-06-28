@@ -7,9 +7,9 @@ from PyQt6.QtWidgets import (QWidget, QLabel, QPushButton, QSizePolicy,
     QDateEdit, QDateTimeEdit, QLineEdit, QMainWindow, QToolBar, QCheckBox,
     QMessageBox, QTabWidget, QTextEdit, QSpinBox, QTreeView)
 
-from PyQt6.QtCore import (Qt, QSize, QDate, QDateTime)
+from PyQt6.QtCore import (Qt, QSize, QDate, QDateTime, pyqtSignal)
 from PyQt6.QtGui import (QWheelEvent, QFont, QIcon, QCursor, QGuiApplication,
-    QTextDocument, QStandardItem, QColor, QBrush, QAction, QStandardItemModel)
+    QTextDocument, QStandardItem, QColor, QBrush, QAction, QStandardItemModel, QFocusEvent)
 
 class treeView(QTreeView):
     """inherits from QtreeView class
@@ -332,14 +332,21 @@ class checkBox(QCheckBox):
             return "0"
 
 class textEdit(QTextEdit):
+    editingFinished = pyqtSignal()
+    
     def __init__(self, fontSize=11):
-        super().__init__()
+        super(textEdit, self).__init__()
         font = QFont('Calibri', fontSize)
         self.setFont(font)
         self.setMinimumHeight(170)
+        # self.dirty = False
+        self.on_focus_content = ''
+        # self.editingFinished.connect(self.testSignal)
+        self.textChanged.connect(self.textChanged_)
 
     def populate(self, text):
         self.setText(text)
+        # self.dirty = False
     
     def reSet(self):
         self.clear()
@@ -352,6 +359,28 @@ class textEdit(QTextEdit):
 
     def __repr__(self) -> str:
         return 'textEdit - Large text widget'
+
+    def focusInEvent(self, e: QFocusEvent) -> None:
+        self.on_focus_content = self.getInfo()
+        return super().focusInEvent(e)
+
+    def focusOutEvent(self, e: QFocusEvent) -> None:
+        on_focus_out_content = self.getInfo()
+        if self.on_focus_content != on_focus_out_content:
+            self.editingFinished.emit()
+            print('Signal')
+        else:
+            print('no signal')
+        return super().focusOutEvent(e)
+    
+    def textChanged_(self):
+        self.dirty = True
+    
+    # def testSignal(self):
+    #     if self.dirty:
+    #         print('Changed')
+    #     else:
+    #         print('no change')
 
    
 class deleteWarningBox(QMessageBox): 

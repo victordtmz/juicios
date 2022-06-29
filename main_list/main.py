@@ -5,9 +5,9 @@ import os
 from turtle import Turtle
 from typing import Iterable
 from urllib import response
-from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout, QStatusBar, QMainWindow)
-from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import QSortFilterProxyModel, QRegularExpression
+from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout, QStatusBar, QMainWindow, QGridLayout)
+from PyQt6.QtGui import QIcon, QCursor
+from PyQt6.QtCore import QSortFilterProxyModel, QRegularExpression, Qt
 from globalElements import constants, functions
 from widgets import widgets
 from widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox
@@ -39,7 +39,7 @@ class main(QMainWindow):
         self.requery()
 
         # self.db = db.main()
-        # self.db.select_detalles()
+        # self.db.select_detalles() 
 
     
     def __repr__(self) -> str:
@@ -57,6 +57,7 @@ class main(QMainWindow):
         self.setStatusBar(self.status_bar)
         # self.tipo_filters()
         self.config_main_list()
+        self.configure_heading()
         self.config_layout()
         self.showMaximized()
         self.set_connections()
@@ -68,10 +69,47 @@ class main(QMainWindow):
         self.filters.search.txt.textChanged.connect(self.apply_search)
         self.list.list.selectionModel().selectionChanged.connect(self.selectionChanged)
         self.form.btn_save.pressed.connect(self.save_detalles)
-        self.list.btn_requery.pressed.connect(self.requery)
-        self.list.btn_new.pressed.connect(self.new_item)
-        self.list.btn_delete.pressed.connect(self.delete_window_open)
-        self.list.btn_edit.pressed.connect(self.edit_window_open)
+        self.btn_requery.pressed.connect(self.requery)
+        self.btn_new.pressed.connect(self.new_item)
+        self.btn_delete.pressed.connect(self.delete_window_open)
+        self.btn_edit.pressed.connect(self.edit_window_open)
+        self.btn_folder.pressed.connect(self.open_folder)
+        # self.btn_details.pressed.connect(self.open_details)
+
+
+    def configure_heading(self): 
+        self.heading = QWidget()
+        self.heading_layout = QHBoxLayout()
+        # self.heading_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.heading_layout.setContentsMargins(0,0,0,0)
+        self.heading_layout.setSpacing(0)
+        self.heading.setLayout(self.heading_layout)
+
+        self.btn_folder = buttonWidget('  Abrir carpeta',13, icon=constants.iconOpenFolder)
+        self.btn_requery = buttonWidget('  Refresh', 13, constants.iconRefresh)
+        self.btn_new = buttonWidget('   Nuevo', 13, constants.iconNew)
+        self.btn_delete = buttonWidget('  Eliminar', 13, constants.iconDelete)
+        self.btn_edit = buttonWidget(' Editar', 13)
+        self.btn_details = buttonWidget('  Detalles', 13, constants.iconFilter)
+        self.spacer = buttonWidget()
+        cursor = QCursor(Qt.CursorShape.ArrowCursor)
+        self.spacer.setCursor(cursor)
+        # self.spacer.setMinimumWidth(500)
+
+        self.heading_layout.addWidget(self.btn_requery)
+        self.heading_layout.addWidget(self.btn_folder)
+        self.heading_layout.addWidget(self.btn_new)
+        self.heading_layout.addWidget(self.btn_delete)
+        self.heading_layout.addWidget(self.btn_edit)
+        self.heading_layout.addWidget(self.btn_details)
+        self.heading_layout.addWidget(self.spacer,1)
+        # self.heading_layout.setAlignment(self.spacer, Qt.AlignmentFlag.AlignRight)
+
+        # self.heading_layout.addWidget(self.btn_requery)
+        # self.heading_layout.addWidget(self.btn_folder)
+        # self.heading_layout.addWidget(self.btn_new)
+        # self.heading_layout.addWidget(self.btn_delete)
+        # self.heading_layout.addWidget(self.btn_edit)
 
 
     def config_main_list(self):
@@ -92,11 +130,12 @@ class main(QMainWindow):
         self.filters = filters.main()
         self.form = form.main()
         self.centralWidget_ = QWidget()
-        self.layout_ = QHBoxLayout()
+        self.layout_ = QGridLayout()
         self.layout_.setContentsMargins(0,0,0,0)
-        self.layout_.addWidget(self.filters)
-        self.layout_.addWidget(self.list,1)
-        self.layout_.addWidget(self.form,1)
+        self.layout_.addWidget(self.filters,0,0,2,1, Qt.AlignmentFlag.AlignLeft)
+        self.layout_.addWidget(self.heading,0,1,1,2)
+        self.layout_.addWidget(self.list,1,1)
+        self.layout_.addWidget(self.form,1,2)
         self.centralWidget_.setLayout(self.layout_)
         self.setCentralWidget(self.centralWidget_)
 
@@ -252,6 +291,8 @@ class main(QMainWindow):
             # if msg[1]:
             #     self.form.id_.populate(msg[1])
         
+    def open_folder(self):
+        self.list.open_folder()
 
     def new_item(self):
         self.edit_form = edit_form.main()
@@ -407,6 +448,9 @@ class main(QMainWindow):
 
     def remove_all_filters(self):
         self.filters.remove_all_filters()
+
+    # def open_details(self):
+    #     pass
 
         
         

@@ -8,57 +8,43 @@ from globalElements import constants
 from main_list import edit_form
 
 class main(QWidget):
-    """main list of items that contains all the cases with their type.
-    info is populated on parent widget requery() -> populate() functions. 
-    Columns:
-        0 => Heading: Tipo; data: case category. 
-        1 => Heading: Expediente; data: Client name with short case explanation.
-        2 => Heading: Activos; data: Actio or inactivo - for loading.
-
-    Args:
-        QWidget (_type_): _description_
-    """
     def __init__(self):
         super().__init__()
         self.initUi()
-        # self.set_connections()
+        self.set_connections()
         
-    # def set_connections(self):
-        # self.btn_folder.pressed.connect(self.open_folder)
-        
-
-        
+    def set_connections(self):
+        self.btn_folder.pressed.connect(self.open_folder)
 
     def initUi(self):
         self.configure_list()
-        # self.configure_heading()
+        self.configure_heading()
         self.layout_ = QVBoxLayout()
         self.layout_.setContentsMargins(0,0,0,0)
         self.setLayout(self.layout_)
-        # self.layout_.addWidget(self.heading)
+        self.layout_.addWidget(self.heading)
 
         self.layout_.addWidget(self.list,1)
 
 
-    # def configure_heading(self): 
-        # self.heading = QWidget()
-        # self.heading_layout = QHBoxLayout()
-        # self.heading_layout.setContentsMargins(0,0,0,0)
-        # self.heading_layout.setSpacing(0)
-        # self.heading.setLayout(self.heading_layout)
+    def configure_heading(self):
+        self.heading = QWidget()
+        self.heading_layout = QHBoxLayout()
+        self.heading_layout.setContentsMargins(0,0,0,0)
+        self.heading_layout.setSpacing(0)
+        self.heading.setLayout(self.heading_layout)
 
-        # self.btn_folder = buttonWidget('  Abrir carpeta',13, icon=constants.iconOpenFolder)
-        # self.btn_requery = buttonWidget('  Refresh', 13, constants.iconRefresh)
-        # self.btn_new = buttonWidget('   Nuevo', 13, constants.iconNew)
-        # self.btn_delete = buttonWidget('  Eliminar', 13, constants.iconDelete)
-        # self.btn_edit = buttonWidget(' Editar', 13)
-        # self.btn_details = buttonWidget('  Detalles', 13, constants.iconFilter)
+        self.btn_folder = buttonWidget('  Abrir carpeta',13, icon=constants.iconOpenFolder)
+        self.btn_requery = buttonWidget('  Refresh', 13, constants.iconRefresh)
+        self.btn_new = buttonWidget('   Nuevo', 13, constants.iconNew)
+        self.btn_delete = buttonWidget('  Eliminar', 13, constants.iconDelete)
+        self.btn_edit = buttonWidget(' Editar', 13)
 
-        # self.heading_layout.addWidget(self.list.btn_requery)
-        # self.heading_layout.addWidget(self.list.btn_folder)
-        # self.heading_layout.addWidget(self.list.btn_new)
-        # self.heading_layout.addWidget(self.list.btn_delete)
-        # self.heading_layout.addWidget(self.list.btn_edit)
+        self.heading_layout.addWidget(self.btn_requery)
+        self.heading_layout.addWidget(self.btn_folder)
+        self.heading_layout.addWidget(self.btn_new)
+        self.heading_layout.addWidget(self.btn_delete)
+        self.heading_layout.addWidget(self.btn_edit)
 
             
 

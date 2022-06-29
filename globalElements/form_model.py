@@ -176,4 +176,6 @@ class main(QMainWindow):
                 self.id_.populate(id_)
                 self.status_bar.showMessage('El registro se creó exitosamente', 10000)
             self.dirty = False
+        else:
+            self.status_bar.showMessage('No se guardó el registro', 1000)
 

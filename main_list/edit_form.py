@@ -12,8 +12,8 @@ from widgets.radioButtons import activoRadioButtons
 class main(QDialog):
     def __init__(self):
         super().__init__()
-        self.fontSize = 16
-        self.setMinimumWidth(500)
+        self.fontSize = 14
+        self.setMinimumWidth(600)
         # self.mode = 'new'
         self.iconEnlace = QIcon( f'{constants.DB_FILES}\icons\enlace_juicios.png')
         self.setWindowIcon(self.iconEnlace)
@@ -21,7 +21,7 @@ class main(QDialog):
         self.btn_cancel.pressed.connect(self.deleteLater)
 
     def configureForm(self):
-        
+        self.validate = labelWidget('', 13, fontColor='red')
         self.tipo = cbo(self.fontSize)
         self.expediente = lineEdit(self.fontSize)
         self.activo = activoRadioButtons()
@@ -29,13 +29,12 @@ class main(QDialog):
 
         
         # self.btnSave.setMinimumHeight(35)
-        self.spacer = QSpacerItem(1,20)
         self.layout_ = QFormLayout()
         self.layout_.setVerticalSpacing(10)
         self.layout_.addRow(labelWidget('Tipo:', self.fontSize) ,self.tipo)
         self.layout_.addRow(labelWidget('Expediente:', self.fontSize) ,self.expediente)
         self.layout_.addRow(self.activo)
-        self.layout_.addItem(self.spacer)
+        self.layout_.addRow(self.validate)
         self.layout_.addRow(self.btn_widget)
 
         
@@ -52,6 +51,13 @@ class main(QDialog):
 
         self.btn_widget_layout.addWidget(self.btn_cancel)
         self.btn_widget_layout.addWidget(self.btn_save)
+
+    def get_info(self):
+        tipo = self.tipo.getInfo()
+        expediente = self.expediente.getInfo()
+        activo = self.activo.getInfo()
+        info = {'tipo':tipo, 'expediente':expediente, 'activo':activo}
+        return info
 
 
     # def save_new(self):

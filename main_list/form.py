@@ -12,7 +12,9 @@ class main(QScrollArea):
         self.setWidgetResizable(True)
         self.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.configureForm()
-
+        self.set_connections()
+        self.dirty = False
+        
     def configureForm(self):
         self.formValues = []
         self.id_ = lineEdit(self.fontSize)
@@ -66,6 +68,9 @@ class main(QScrollArea):
 
         # self.layoutmain.addWidget(self.layoutBox)
         # self.layoutmain.setAlignment(self.layoutBox, Qt.AlignmentFlag.AlignHCenter) 
+    
+    
+
     def clear(self):
         for i in self.formItems:
             i.reSet()
@@ -82,3 +87,10 @@ class main(QScrollArea):
 
     def get_info(self):
         return list(map(lambda x: x.getDbInfo(), self.formItems))
+
+    def set_connections(self):
+        for i in self.formItems:
+            i.editingFinished.connect(self.set_form_dirty)
+    
+    def set_form_dirty(self):
+        self.dirty = True

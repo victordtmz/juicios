@@ -2,3 +2,7 @@ Configurar 'Nuevo' - validate data.
 
 Agregar button para archivar/desarchivar.
 Agregar button para cambiar nombre. 
+
+2022-06-28:
+    Created a on focuOutEvent or signal for editingFinished.
+    - Consider setting to self.dirty = True for consideration on save events. 

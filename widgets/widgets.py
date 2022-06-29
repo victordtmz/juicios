@@ -368,9 +368,6 @@ class textEdit(QTextEdit):
         on_focus_out_content = self.getInfo()
         if self.on_focus_content != on_focus_out_content:
             self.editingFinished.emit()
-            print('Signal')
-        else:
-            print('no signal')
         return super().focusOutEvent(e)
     
     def textChanged_(self):

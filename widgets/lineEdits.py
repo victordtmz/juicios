@@ -4,7 +4,9 @@ from widgets import widgets
 from PyQt6.QtWidgets import (QWidget, QHBoxLayout, QLineEdit, QDateEdit)
 # from PyQt6.QtCore import (Qt, QSize, QDate, QDateTime)
 from PyQt6.QtGui import (QFont, QWheelEvent)
-from PyQt6.QtCore import QDate
+        
+        
+from PyQt6.QtCore import QDate, pyqtSignal
 import locale
 locale.setlocale(locale.LC_ALL,"")
 import re
@@ -23,13 +25,14 @@ class lineEdit(QLineEdit):
         super().__init__()
         font = QFont('Calibri', fontSize)
         self.setFont(font)
+        # self.editingFinished.connect(lambda: print('hello'))
         if hightLight:
             self.setStyleSheet("QLineEdit"
                         "{"
                         "background : #ffeeda;"
                         "}")
 
-    def populate(self, text):
+    def populate(self, text): 
         """set te value to the given string
 
         Args:
@@ -166,12 +169,12 @@ class lineEditCurrency(lineEdit):
     
     def getDbInfo(self):
         info = self.text()
-        if info:
-            try:
-                info = locale.atof(str(info).strip("$()"))
-                return str(info)
-            except:
-                return ""
+        # if info:
+        try:
+            info = locale.atof(str(info).strip("$()"))
+            return str(info)
+        except:
+            return ""
             # print(info)
             
     def populate(self, text):
@@ -218,7 +221,9 @@ class dateEdit(QDateEdit):
         return self.getInfo()
 
 class dateWidget(QWidget):
+    editingFinished = pyqtSignal()
     def __init__(self, fontSize = 13):
+        
         super().__init__()
         self.dateEdit = dateEdit(fontSize) 
         self.btnToday = buttonWidget(icon=constants.iconToday, size='icon')
@@ -231,9 +236,9 @@ class dateWidget(QWidget):
         self.layout_.addWidget(self.dateEdit,1)
         self.layout_.addWidget(self.btnToday)
         self.setLayout(self.layout_)
-
         self.btnToday.pressed.connect(self.btnTodayPressed)
-        
+        self.dateEdit.editingFinished.connect(self.conf_editing_finished)
+
     def btnTodayPressed(self):
         self.dateEdit.setDate(QDate.currentDate())
 
@@ -251,3 +256,6 @@ class dateWidget(QWidget):
 
     def __repr__(self) -> str:
         return 'dateEdit with "today" button'
+
+    def conf_editing_finished(self):
+        self.editingFinished.emit()

@@ -10,7 +10,7 @@ class main:
     def define_global(self):
         self.database = 'registros.avd'
         self.tbl_registros = 'registros'
-        self.tbl_detalles = 'detalles'
+        # self.tbl_detalles = 'detalles'
         # self.OneDrive = os.path.expanduser('~\OneDrive')
         self.OneDrive = constants.ROOT_ENLACE
         self.expediente = []
@@ -27,10 +27,21 @@ class main:
                 self.connection = sqlite3.connect(database)
             self.cursor = self.connection.cursor()
 
-    def execute(self, sql:str):
+    def execute(self, sql:str, var:list='', close:bool=True):
         self.connect()
-        self.cursor.execute(sql)
+        if var:
+            self.cursor.execute(sql, var)
+        else:
+            self.cursor.execute(sql)
+        if close:
+            self.connection.close()
+
+    def save(self, sql:str, var=''):
+        self.execute(sql, var, False)
         self.connection.close()
+        return self.cursor.lastrowid
+        
+
 
     def select(self, sql:str):
         self.connect()

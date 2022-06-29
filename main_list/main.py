@@ -228,6 +228,7 @@ class main(QMainWindow):
      
 
     def selectionChanged(self):
+        self.save_detalles()
         self.db.expediente = self.list.get_values()
         self.db.connect()
         detalles = self.db.select_detalles()
@@ -238,8 +239,14 @@ class main(QMainWindow):
 
 
     def save_detalles(self):
-        detalles = self.form.get_info()
-        self.db.save_detalles(detalles)
+        if self.form.dirty:
+            detalles = self.form.get_info()
+            msg = self.db.save_detalles(detalles)
+            self.form.dirty = False
+            self.status_bar.showMessage(f'{msg[0]}', 10000)
+            if msg[1]:
+                self.form.id_.populate(msg[1])
+        
 
     def new_item(self):
         self.edit_form = edit_form.main()
@@ -253,14 +260,35 @@ class main(QMainWindow):
         self.edit_form.exec()
 
     def save_new(self):
-        tipo = self.edit_form.tipo.getInfo()
-        expediente = self.edit_form.expediente.getInfo()
-        activo = self.edit_form.activo.getInfo()
-        folder_path = f'{constants.ROOT_ENLACE}\{activo}\{tipo}\{expediente}'
+        info = self.edit_form.get_info()
+        
+        tipo_path = f'{constants.ROOT_ENLACE}\{info["activo"]}\{info["tipo"]}'
+        folder_path = f'{tipo_path}\{info["expediente"]}'
+        #validate record
+        errors_ = []
+        validation_text = 'Se encontraron los siguientes errores: \n'
+        exists_ = os.path.isdir(folder_path)
+        if exists_ and info['expediente']:
+            errors_.append('  - No se puede crear el registro con esos datos, el registro ya existe')
+        if not info['tipo']:
+            errors_.append('  - Debe proporcionar el tipo de expediente')
+        if not info['expediente']:
+            errors_.append('  - Debe proporcionar el nombre de expediente')
+        if errors_:
+            for i in errors_:
+                validation_text += i
+                validation_text += '\n'
+            validation_text += 'Corrija los errores e intente nuevamente'
+            self.edit_form.validate.setText(validation_text)
+            return
+            
+            
+        if not os.path.isdir(tipo_path):
+            os.mkdir(tipo_path)
         os.mkdir(folder_path)
         self.edit_form.deleteLater()
         self.requery()
-        self.find_select_item_removing_filters([tipo, expediente, activo])
+        self.find_select_item_removing_filters([info["tipo"], info["expediente"], info["activo"]])
         # self.list.find_item(expediente)
         #find item
         # self.remove_all_filters()
@@ -350,17 +378,6 @@ class main(QMainWindow):
             msg = widgets.deleteWarningBox('Seleccione el registro que desea editar.', 13)   
             msg.exec()  
 
-        
-        # folder = self.list.get_file_path()
-        # if folder:
-        #     self.delete_warning_box = delete_form.main()
-        #     self.delete_warning_box.btn_delete.pressed.connect(lambda: self.delete_item(folder))
-        #     self.delete_warning_box.exec()
-
-        # else:
-        #     msg = widgets.deleteWarningBox('Seleccione el registro que desea eliminar.', 13)   
-        #     msg.exec()   
-
     def save_edit(self, current_info):
         tipo = self.edit_form.tipo.getInfo()
         expediente = self.edit_form.expediente.getInfo()
@@ -385,6 +402,11 @@ class main(QMainWindow):
 
     def remove_all_filters(self):
         self.filters.remove_all_filters()
+
+        
+        
+
+    
 
 
     

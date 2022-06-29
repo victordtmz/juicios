@@ -1,4 +1,4 @@
-import sys
+import sys 
 from PyQt6.QtWidgets import (QApplication)
 from main_list import main
 from main_list import edit_form

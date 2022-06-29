@@ -37,9 +37,6 @@ class main(db.main):
             pass
             
     def save_detalles(self, r):
-        print(r) 
-        
-
         if r[0]:
             #edit def savexisting record.
             sql = f'''

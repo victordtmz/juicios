@@ -1,3 +1,4 @@
+from operator import truediv
 from globalElements.functions import formatPhoneNo
 from globalElements import constants
 from widgets import widgets
@@ -25,7 +26,6 @@ class lineEdit(QLineEdit):
         super().__init__()
         font = QFont('Calibri', fontSize)
         self.setFont(font)
-        # self.editingFinished.connect(lambda: print('hello'))
         if hightLight:
             self.setStyleSheet("QLineEdit"
                         "{"
@@ -160,6 +160,10 @@ class lineEditPhone(lineEdit):
     def changeValue(self,currentNo):
         PhoneNo = formatPhoneNo(currentNo)
         self.setText(PhoneNo)
+
+# Currency 
+# ------------------------------------------------------------
+
 class lineEditCurrency(lineEdit):
     def __init__(self, fontSize):
         super().__init__(fontSize)
@@ -175,7 +179,6 @@ class lineEditCurrency(lineEdit):
             return str(info)
         except:
             return ""
-            # print(info)
             
     def populate(self, text):
         if text:
@@ -191,6 +194,33 @@ class lineEditCurrency(lineEdit):
     def reSet(self):
         self.clear()
 
+class lineEditCurrencyWidget(widgets.widget_model):
+    def __init__(self, fontSize=11):
+        super().__init__(fontSize)
+        self._fontSize = fontSize
+
+    def create_main_widget(self):
+        self.main_widget = lineEditCurrency(self._fontSize)
+
+    def execute_validation(self):
+        info = self.getInfo()
+        info = info.strip("$()")
+        if not self.is_float(info):
+            self.set_validation('Ingrese cantidad en número')
+        else: 
+            self.set_validation()
+
+    def is_float(sefl, num):
+        try:
+            float(num)
+            return True
+        except: return False
+            # super().execute_validation('Ingrese cantidad en número')
+
+
+    
+# Date Edits 
+# ------------------------------------------------------------
 class dateEdit(QDateEdit):
     def __init__(self, fontSize = 13):
         super().__init__()

@@ -12,7 +12,7 @@ from globalElements import constants, functions
 from widgets import widgets
 from widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox
 from widgets.lineEdits import lineEditFilterGroup
-from main_list import filters, form, list_, db, edit_form, delete_form
+from main_list import filters, form, list_, edit_form, delete_form
 
 # import mainList
 
@@ -38,7 +38,7 @@ class main(QMainWindow):
         self.initUi()
         self.requery()
 
-        self.db = db.main()
+        # self.db = db.main()
         # self.db.select_detalles()
 
     
@@ -93,6 +93,7 @@ class main(QMainWindow):
         self.form = form.main()
         self.centralWidget_ = QWidget()
         self.layout_ = QHBoxLayout()
+        self.layout_.setContentsMargins(0,0,0,0)
         self.layout_.addWidget(self.filters)
         self.layout_.addWidget(self.list,1)
         self.layout_.addWidget(self.form,1)
@@ -228,24 +229,28 @@ class main(QMainWindow):
      
 
     def selectionChanged(self):
+        
         self.save_detalles()
-        self.db.expediente = self.list.get_values()
-        self.db.connect()
-        detalles = self.db.select_detalles()
-        if detalles:
-            self.form.populate(detalles)
-        else:
-            self.form.clear()
+        self.form.db.expediente = self.list.get_values()
+        self.form.populate()
+        # self.form.expediente = 
+        # self.db.connect()
+        # detalles = self.db.select_detalles()
+        # if detalles:
+        #     self.form.populate(detalles)
+        # else:
+        #     self.form.clear()
 
 
     def save_detalles(self):
-        if self.form.dirty:
-            detalles = self.form.get_info()
-            msg = self.db.save_detalles(detalles)
-            self.form.dirty = False
-            self.status_bar.showMessage(f'{msg[0]}', 10000)
-            if msg[1]:
-                self.form.id_.populate(msg[1])
+        self.form.save()
+        # if self.form.dirty:
+            # detalles = self.form.get_info()
+            # msg = self.form.save()
+            # self.form.dirty = False
+            # self.status_bar.showMessage(f'{msg[0]}', 10000)
+            # if msg[1]:
+            #     self.form.id_.populate(msg[1])
         
 
     def new_item(self):
@@ -342,14 +347,14 @@ class main(QMainWindow):
             # self.list.list.clearSelection()
             # self.db.connection.close()
             # shutil.rmtree(folder)
-            # self.requery()
+            # self.requery() 
 
     def delete_item(self, folder):
         pwd = self.delete_warning_box.pwd.getInfo()
         if pwd == '202020':
             self.delete_warning_box.deleteLater()
             self.list.list.clearSelection()
-            self.db.connection.close()
+            self.form.db.connection.close()
             shutil.rmtree(folder)
             self.requery()
             self.status_bar.showMessage(f'Se ha eliminado el registro siguente:   {folder}', 4000)
@@ -386,7 +391,7 @@ class main(QMainWindow):
             current_path = f'{constants.ROOT_ENLACE}\{current_info[2]}\{current_info[0]}\{current_info[1]}'
             new_path = f'{constants.ROOT_ENLACE}\{activo}\{tipo}\{expediente}'
             self.list.list.clearSelection()
-            self.db.connection.close()
+            self.form.db.connection.close()
             try:
                 shutil.move(current_path, new_path)
             except:

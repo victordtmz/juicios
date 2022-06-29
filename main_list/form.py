@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QFormLayout, QScrollArea, QSizePolicy
 from PyQt6.QtCore import Qt
 from widgets.lineEdits import (lineEdit, 
-    lineEditCurrency, dateWidget, lineEditPhone)
+    lineEditCurrency,lineEditCurrencyWidget, dateWidget, lineEditPhone)
 from widgets.widgets import textEdit, buttonWidget, labelWidget
 from globalElements import constants, form_model
 
@@ -10,15 +10,15 @@ class main(form_model.main):
     def __init__(self):
         super().__init__()
         self.table = 'detalles' #USE THIS TO SET SQL FROM HERE ----------------------------
-        
+        self.get_sql_update()
+        self.title.setText('Detalles del Trámite')
         
     def configureForm(self):
-        self.id_ = lineEdit(self.fontSize)
-        self.id_.setReadOnly(True)
+        
         self.cliente = lineEdit(self.fontSize)
         self.expediente = lineEdit(self.fontSize)
         self.fecha = dateWidget(self.fontSize)
-        self.honorarios = lineEditCurrency(self.fontSize)
+        self.honorarios = lineEditCurrencyWidget(self.fontSize)
         self.telefono = lineEditPhone(self.fontSize)
         self.domicilio = lineEdit(self.fontSize)
         self.domicilio1 = lineEdit(self.fontSize)
@@ -26,19 +26,7 @@ class main(form_model.main):
         self.estado = lineEdit(self.fontSize)
         self.cp = lineEdit(self.fontSize)
         self.description = textEdit(self.fontSize)
-        self.formItems = {
-            'id': self.id_, 
-            'cliente': self.cliente, 
-            'expediente':self.expediente, 
-            'fecha_':self.fecha,
-            'honorarios_': self.honorarios, 
-            'telefono': self.telefono,
-            'domicilio': self.domicilio,
-            'domicilio1': self.domicilio1, 
-            'ciudad':self.ciudad, 
-            'estado':self.estado,
-            'cp': self.cp, 
-            'descripcion':self.description}
+        
 
         # for k,v in self.formItems.items():
         #     self.form_layout.addRow(labelWidget(k, self.fontSize), v)
@@ -58,6 +46,24 @@ class main(form_model.main):
         self.form_layout.addRow(labelWidget('Codigo postal:', self.fontSize) ,self.cp)
         self.form_layout.addRow(labelWidget("Descripcion", 14, True, fontColor="Black", align="center"))
         self.form_layout.addRow(self.description)
+        # self.form_scroll_area.setWidget(self.form_widget)
+
+        self.formItems = { 
+            'id': self.id_, 
+            'cliente': self.cliente, 
+            'expediente':self.expediente, 
+            'fecha_':self.fecha,
+            'honorarios_': self.honorarios, 
+            'telefono': self.telefono,
+            'domicilio': self.domicilio,
+            'domicilio1': self.domicilio1, 
+            'ciudad':self.ciudad, 
+            'estado':self.estado,
+            'cp': self.cp, 
+            'descripcion':self.description}
+
+        
+    
 
 
     

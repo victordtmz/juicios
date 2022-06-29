@@ -68,4 +68,3 @@ class main(QDialog):
         #     os.mkdir(database)
         #     return (tipo, expediente)
             # os.startfile(database)
-            # print(database)

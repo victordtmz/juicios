@@ -1,15 +1,76 @@
 
+from abc import abstractmethod
 import string
 from tkinter.ttk import Style
 from globalElements import constants
 from PyQt6.QtWidgets import (QWidget, QLabel, QPushButton, QSizePolicy,
-    QComboBox, QCompleter, QHBoxLayout, QGroupBox, QGridLayout, QRadioButton,
+    QComboBox, QCompleter, QHBoxLayout, QGroupBox, QGridLayout, QRadioButton, QVBoxLayout,
     QDateEdit, QDateTimeEdit, QLineEdit, QMainWindow, QToolBar, QCheckBox,
     QMessageBox, QTabWidget, QTextEdit, QSpinBox, QTreeView)
 
 from PyQt6.QtCore import (Qt, QSize, QDate, QDateTime, pyqtSignal)
 from PyQt6.QtGui import (QWheelEvent, QFont, QIcon, QCursor, QGuiApplication,
     QTextDocument, QStandardItem, QColor, QBrush, QAction, QStandardItemModel, QFocusEvent)
+
+class widget_model(QWidget):
+    editingFinished = pyqtSignal()
+    def __init__(self, fontSize=11):
+        super(widget_model, self).__init__()
+        self._fontSize = fontSize
+        self.font_ = QFont('Calibri', fontSize)
+        self.init_widget()
+
+    @abstractmethod
+    def create_main_widget(self):
+        self.main_widget = textEdit()
+
+    def init_widget(self):
+        self.create_main_widget()
+        self.configure_main_widget()
+        self.main_widget.editingFinished.connect(self.editingFinished_)
+        self.editingFinished.connect(self.execute_validation)
+
+        self.layout_ = QVBoxLayout()
+        self.setLayout(self.layout_)
+        self.layout_.setContentsMargins(0,0,0,0)
+        self.layout_.addWidget(self.main_widget)
+
+    def configure_main_widget(self):
+        self.main_widget.setFont(self.font_)
+
+    def set_validation(self, text:str=''):
+        if hasattr(self, 'validation_label'):
+            self.validation_label.deleteLater()
+            del self.validation_label
+            # self.deletea
+        if text:
+            self.validation_label = labelWidget(text,self._fontSize-1, fontColor='red')
+            self.layout_.insertWidget(0, self.validation_label)
+            self.main_widget.setFocus()
+
+    # @abstractmethod
+    # def execute_validation(self, text): 
+    #     self.set_validation(text)
+
+
+
+    def populate(self, text):
+        self.main_widget.populate(text)
+    
+    def reSet(self):
+        self.main_widget.reSet()
+
+    def getInfo(self):
+        return self.main_widget.getInfo()
+    
+    def getDbInfo(self):
+        return self.main_widget.getDbInfo()
+
+    def __repr__(self) -> str:
+        return 'Widgeg model - Contains validation methods and label'
+    
+    def editingFinished_(self):
+        self.editingFinished.emit()
 
 class treeView(QTreeView):
     """inherits from QtreeView class
@@ -373,13 +434,6 @@ class textEdit(QTextEdit):
     def textChanged_(self):
         self.dirty = True
     
-    # def testSignal(self):
-    #     if self.dirty:
-    #         print('Changed')
-    #     else:
-    #         print('no change')
-
-   
 class deleteWarningBox(QMessageBox): 
     def __init__(self, text='', fontSize=13):
         super().__init__()

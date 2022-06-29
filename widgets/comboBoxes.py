@@ -56,7 +56,6 @@ class cbo(QComboBox):
             if text.isnumeric():
                 for k, v in self.items.items():
                     if text == str(v):
-                        # print(k)
                         text = k
                         break
         self.setCurrentText(text)

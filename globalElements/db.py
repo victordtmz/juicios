@@ -19,7 +19,6 @@ class main:
         #expediente (Tipo, Juicio, Activo)
         if self.expediente:
             database = f'{self.OneDrive}\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}\desgloce\\registros.avd'
-        # print(database)
             try: 
                 self.connection = sqlite3.connect(database)
             except: 
@@ -50,16 +49,19 @@ class main:
         self.connection.close()
         return records
 
-    def evaluate_save_record(self, up):
-        pass
-    # self.create_registros_table = f'''
-    #     --sql
-    #     CREATE TABLE IF NOT EXISTS {self.tbl_registros} (
-    #         id INTEGER PRIMARY KEY,
-    #         date_ TEXT,
-    #         title TEXT,
-    #         description_ TEXT,
-    #         file_ TEXT
-    #         );'''
-    
-    
+    def select_dict(self, sql:str):
+        self.connect()
+        record = self.cursor.execute(sql)
+        record = record.fetchall()
+        record = self.dict_factory(self.cursor.description, record)
+        return record
+
+
+    def dict_factory(self, description, records):
+        all_records = []
+        for r in records:
+            curr_record = {}
+            for index, column in enumerate(description):
+                curr_record[column[0]] = r[index]
+            all_records.append(curr_record)
+        return all_records

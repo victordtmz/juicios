@@ -10,7 +10,6 @@ if __name__ == '__main__':
     mw = main.main()
     mw.show()
     sys.exit(app.exec())
-# print("hello")
 
 # from PyQt4 import QtCore, QtGui
 

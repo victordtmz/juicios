@@ -10,7 +10,7 @@ from main_list.main import main as mainList
 # import mainList
 
 class main(QMainWindow):
-    def __init__(self):
+    def __init__(self): 
         super().__init__()
         self.init_ui()
         self.layout_config()
@@ -29,6 +29,8 @@ class main(QMainWindow):
     
     def __repr__(self) -> str:
         return '''Main Window => Juicios y Trámites'''
+
+
     
 
 

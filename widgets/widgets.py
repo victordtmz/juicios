@@ -393,3 +393,75 @@ class deleteWarningBox(QMessageBox):
         self.setFont(font)
         self.setStandardButtons(QMessageBox.StandardButton.Ok)
         self.setIcon(QMessageBox.Icon.Information)
+
+class tabWidget(QTabWidget):
+    def __init__(self, size:str="h1"):#self, fontSize=10, selectedSize=16
+        super().__init__()
+        self.setContentsMargins(0,0,0,0)
+        self.setTabsClosable(True)
+        self.setMinimumHeight(170)
+        self.setTabBarAutoHide(True)
+        
+        #style
+        
+
+        match size.lower():
+            case 'h1':
+                css = """
+                QTabBar:tab {
+                    background-color:rgb(212, 212, 212);
+                    color: #002142;
+                    font-size: 12px;
+                    border-radius: 1px;
+                    
+                    padding-top: 2px;
+                    padding-right: 20px;
+                    padding-left: 20px;
+                    padding-bottom: 2px;
+                    }
+                QTabBar:tab:selected {
+                    background-color:#002142;
+                    color: rgb(212,212,212);
+                    font-size: 14px;
+                    padding-top: 2px;
+                    padding-right: 20px;
+                    padding-left: 20px;
+                    padding-bottom: 2px;
+                    }
+                """
+            case 'h2':
+                css = """
+                QTabBar:tab {
+                    background-color:rgb(212, 212, 212);
+                    color: #134A4D;
+                    
+                    font-size: 12px;
+                    border-radius: 1px;
+                    
+                    padding-top: 2px;
+                    padding-right: 20px;
+                    padding-left: 20px;
+                    padding-bottom: 2px;
+                    }
+                QTabBar:tab:selected {
+                    
+                    background-color:#134A4D;
+                    color:rgb(212, 212, 212);
+                    font-size: 14px;
+                    padding-top: 2px;
+                    padding-right: 20px;
+                    padding-left: 20px;
+                    padding-bottom: 2px;
+                    }
+                """
+
+        
+        self.setStyleSheet(css)
+
+        self.tabCloseRequested.connect(self.close_tab_requested)
+    
+    
+
+    def close_tab_requested(self, intVar):
+        if intVar:
+            self.removeTab(intVar)

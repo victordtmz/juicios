@@ -67,7 +67,7 @@ class main(QMainWindow):
         self.filters.inactivos.toggled.connect(self.inactivos_toggle)
         self.filters.search.txt.textChanged.connect(self.apply_search)
         self.list.list.selectionModel().selectionChanged.connect(self.selectionChanged)
-        self.form.btnSave.pressed.connect(self.save_detalles)
+        self.form.btn_save.pressed.connect(self.save_detalles)
         self.list.btn_requery.pressed.connect(self.requery)
         self.list.btn_new.pressed.connect(self.new_item)
         self.list.btn_delete.pressed.connect(self.delete_window_open)

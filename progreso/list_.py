@@ -83,6 +83,7 @@ class main(QWidget):
         self.selection_model = self.list.selectionModel()
 
         self.search = lineEditFilterGroup()
+        self.search.setMaximumWidth(400)
 
         
         self.list.setColumnWidth(0, 140)
@@ -121,7 +122,9 @@ class main(QWidget):
         self.list.remove_all_items()
 
     def get_id(self) -> str:
-        return self.list.get_values()[0]
+        record = self.list.get_values()
+        if record:
+            return record[0]
 
     def get_values(self)->list:
         """Gets the values for the selected record

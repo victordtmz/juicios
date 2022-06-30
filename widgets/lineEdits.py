@@ -275,6 +275,8 @@ class dateWidget(QWidget):
         self.dateEdit.editingFinished.connect(self.conf_editing_finished)
 
     def btnTodayPressed(self):
+        """Sets the widget to current date. 
+        """
         self.dateEdit.setDate(QDate.currentDate())
 
     def populate(self, text):

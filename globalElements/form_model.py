@@ -90,7 +90,9 @@ class main(QMainWindow):
         if not record:
             sql = f''' --sql
             SELECT * FROM {self.table};''' 
-            record = self.db.select_dict(sql)
+            try: record = self.db.select_dict(sql)
+            except: return
+            
             if record:
                 record = record[0]
         try: 

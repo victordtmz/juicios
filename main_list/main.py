@@ -268,7 +268,7 @@ class main(QMainWindow):
             return
         self.populate()
 
-     
+      
 
     def selectionChanged(self):
         self.save_detalles()

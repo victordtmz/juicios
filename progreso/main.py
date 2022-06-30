@@ -46,22 +46,19 @@ class main(QMainWindow):
         self.set_connections()
 
     def set_connections(self):
-        # self.filters.selection_model.selectionChanged.connect(self.apply_filter_tipo)
-        # self.filters.activos.toggled.connect(self.activos_toggle)
-        # self.filters.inactivos.toggled.connect(self.inactivos_toggle)
-        # self.filters.search.txt.textChanged.connect(self.apply_search)
         self.list.list.selectionModel().selectionChanged.connect(self.selectionChanged)
-        self.form.btn_save.pressed.connect(self.save_detalles)
+        self.form.btn_save.pressed.connect(self.save_record)
+        self.form.btn_cancel.pressed.connect(self.cancel_form_edit)
         self.btn_requery.pressed.connect(self.requery)
-        # self.list.btn_new.pressed.connect(self.new_item)
-        # self.list.btn_delete.pressed.connect(self.delete_window_open)
-        # self.list.btn_edit.pressed.connect(self.edit_window_open)
+        self.btn_new.pressed.connect(self.new_record)
+        self.btn_delete.pressed.connect(self.delete_record)
+        self.btn_folder.pressed.connect(self.open_folder)
+
 
 
     def configure_heading(self): 
         self.heading = QWidget()
         self.heading_layout = QHBoxLayout()
-        # self.heading_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.heading_layout.setContentsMargins(0,0,0,0)
         self.heading_layout.setSpacing(0)
         self.heading.setLayout(self.heading_layout)
@@ -70,6 +67,7 @@ class main(QMainWindow):
         self.btn_requery = buttonWidget('  Refresh', 13, constants.iconRefresh)
         self.btn_new = buttonWidget('   Nuevo', 13, constants.iconNew)
         self.btn_delete = buttonWidget('  Eliminar', 13, constants.iconDelete)
+
         self.spacer = buttonWidget()
         cursor = QCursor(Qt.CursorShape.ArrowCursor)
         self.spacer.setCursor(cursor)
@@ -120,97 +118,55 @@ class main(QMainWindow):
 
     def requery(self):
         self.list.requery()
-        #obtener all elements from activos
-        # sql = '''
-        # --sql
-        # SELECT id, 
-        #     date_ AS 'Fecha',
-        #     title AS 'Titulo', 
-        #     description_ AS 'Descripcion', 
-        #     file_ AS 'Archivo'
-        # FROM registros;
-        # '''
         
-        # records, labels = self.db.select_dict_labels(sql)
-        # self.list.remove_all_items()
-        # for i in records:
-        #     self.list.add_item(i)
-        
-        # self.list.list.standardModel.setHorizontalHeaderLabels(labels)
-        
-        # self.list.list.setColumnHidden(0, True)
-        # self.list.list.setColumnHidden(3, True)
-        # self.list.list.setColumnHidden(4, True)
-        # self.list.proxy_search
-
-        #filter list
-
-
             
-    def activos_toggle(self, checked):
-        """If activos is unchecked, inactivos will get checked, to make sure at least
-        one fo the items is checked, then it will requery.
-        """
-        self.activos_checked = checked
-        if not self.activos_checked and not self.inactivos_checked:
-            self.filters.inactivos.setChecked(True)
-            return
-        self.populate()
+   
 
-
-    def inactivos_toggle(self, checked):
-        """If activos is unchecked, inactivos will get checked, to make sure at least
-        one fo the items is checked, then it will requery.
-        """
-        self.inactivos_checked = checked
-        if not self.inactivos_checked and not self.activos_checked:
-            self.filters.activos.setChecked(True)
-            return
-        self.populate()
-
-     
+    def populate_form(self):
+        values = self.list.get_values_dict()
+        if values:
+            self.form.populate(values)
+        else:
+            self.form.clear()
 
     def selectionChanged(self):
-        self.save_detalles()
-        # prev_id = self.form.save() 
-        # if prev_id:
-        #     curr_id = self.list.get_id()
-        #     self.requery()
-        #     self.list.select_record_id(curr_id)
-        # else:
-        #     # self.form.db.expediente = self.list.get_values()
-        #     values = self.list.get_values_dict()
-        #     self.form.populate(values)
-        # self.form.expediente = self.requeryd
-        # self.db.connect()
-        # detalles = self.db.select_detalles()
-        # if detalles:
-        #     self.form.populate(detalles)
-        # else:
-        #     self.form.clear()
+        self.save_record()
 
-
-    def save_detalles(self):
+    def save_record(self):
         prev_id = self.form.save() 
         if prev_id:
             curr_id = self.list.get_id()
             self.requery()
             self.list.select_record_id(curr_id)
         else:
-            # self.form.db.expediente = self.list.get_values()
-            values = self.list.get_values_dict()
-            self.form.populate(values)
-        # if self.form.dirty:
-            # detalles = self.form.get_info()
-            # msg = self.form.save()
-            # self.form.dirty = False
-            # self.status_bar.showMessage(f'{msg[0]}', 10000)
-            # if msg[1]:
-            #     self.form.id_.populate(msg[1])
+            self.populate_form()
+       
+    def delete_record(self):
+        record_id = self.list.get_id()
+        sql = '''
+        --sql
+        DELETE FROM registros WHERE id = ?;'''
+        self.db.connect()
+        self.db.cursor.execute(sql, (record_id,))
+        self.db.connection.commit()
+        self.db.connection.close()
+        self.requery()
 
-    # def configure_form(self):
-    #     self.db = db.main()
-    #     self.form = form.main('registros' ,self.db)
+    def new_record(self):
+        self.list.list.clearSelection()
+        self.form.clear()
+        self.form.date_.btnTodayPressed()
+        self.form.title_.setFocus()
+
+    def open_folder(self):
+        self.files_tree.folderOpen()
+
+    def cancel_form_edit(self):
+        if self.list.list.selectionModel().hasSelection():
+            self.populate_form()
+        else:
+            self.form.clear()
+        self.form.dirty = False
         
 
     

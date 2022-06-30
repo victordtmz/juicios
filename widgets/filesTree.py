@@ -116,7 +116,7 @@ class filesTree(QMainWindow):
         
         self.layoutLineEditFile = QGridLayout()
         self.layoutLineEditFile.setSpacing(1)
-        self.layoutLineEditFile.addWidget(self.lineEditItems,0,0,1,2)
+        self.layoutLineEditFile.addWidget(self.lineEditItems,2,0,1,2)
         self.layoutLineEditFile.addWidget(self.btnOpen,1,0)
         self.layoutLineEditFile.addWidget(self.btnLinkFile,1,1)
         self.layoutLineEditFileBox = QWidget()
@@ -208,6 +208,8 @@ class filesTree(QMainWindow):
     
     
     def folderOpen(self):
+        """Opens the root folder for the widget. 
+        """
         try:
             os.startfile(self.filesDir) 
         except FileNotFoundError:

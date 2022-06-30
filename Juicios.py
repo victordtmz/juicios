@@ -1,8 +1,5 @@
-from cmath import exp
 import sys
-import os
-from PyQt6.QtWidgets import (QApplication,  QHBoxLayout, 
-    QWidget, QVBoxLayout, QMainWindow)
+from PyQt6.QtWidgets import (QApplication, QMainWindow)
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSortFilterProxyModel, QRegularExpression
 from globalElements import constants, functions
@@ -12,7 +9,7 @@ from progreso import main as progreso
 # import mainList
 
 class main(QMainWindow):
-    def __init__(self): 
+    def __init__(self):  
         super().__init__()
         self.init_ui()
 
@@ -21,7 +18,7 @@ class main(QMainWindow):
         self.iconEnlace = QIcon( f'{constants.DB_FILES}\icons\enlace_juicios.png')
         self.setWindowIcon(self.iconEnlace)
         self.layout_config() 
-        self.set_connections()
+        self.set_connections() 
 
     def layout_config(self):
         self.main_list = mainList()
@@ -36,8 +33,8 @@ class main(QMainWindow):
     def open_progreso(self):
         expediente = self.main_list.list.get_values()
         if expediente:
-            self.progreso = progreso.main()
-            self.progreso.expediente = expediente
+            # self.progreso.expediente = expediente
+            self.progreso = progreso.main(expediente)
             self.tabWidget.addTab(self.progreso,expediente[1])
             self.tabWidget.setCurrentWidget(self.progreso)
         else:

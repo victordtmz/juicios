@@ -7,8 +7,11 @@ from globalElements import constants, form_model
 
 
 class main(form_model.main):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, db):
+        
+        super().__init__(db)
+    # def __init__(self):
+        # super().__init__()
         self.table = 'detalles' #USE THIS TO SET SQL FROM HERE ----------------------------
         self.get_sql_update()
         self.title.setText('Detalles del Trámite')
@@ -61,6 +64,7 @@ class main(form_model.main):
             'estado':self.estado,
             'cp': self.cp, 
             'descripcion':self.description}
+
 
         
     

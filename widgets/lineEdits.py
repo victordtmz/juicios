@@ -70,9 +70,10 @@ class lineEditFilterGroup(QWidget):
             label (str, optional): if a label is set, it will be included in the HBoxLayout. Defaults to "".
             clearFilter (bool, optional): if True, a button will be added at the end to clear the text. Defaults to True.
         """
+    editingFinished = pyqtSignal()
     def __init__(self, fontSize =13, label = "", clearFilter = True):
-        
-        super().__init__()
+        super(lineEditFilterGroup, self).__init__()
+        # super().__init__()
         self.txt = lineEdit(fontSize)
         self.btn = widgets.buttonWidget(icon=constants.iconClearFilter, size='icon')
         # self.btn.setFixedSize(30, fontSize * 2)
@@ -90,6 +91,7 @@ class lineEditFilterGroup(QWidget):
             self.layout_.insertWidget(0, self.lbl)
 
         self.btn.pressed.connect(self.btn_pressed)
+        self.txt.editingFinished.connect(self.editingFinished_)
     
     def btn_pressed(self):
         """Clears line edit content and sets focus to it
@@ -121,6 +123,9 @@ class lineEditFilterGroup(QWidget):
         """Returns:
             string: content of 'txt' widget"""
         return self.getInfo()
+
+    def editingFinished_(self):
+        self.editingFinished.emit()
 
     def __repr__(self) -> str:
         return 'label, lineEdit, button => filter Group'

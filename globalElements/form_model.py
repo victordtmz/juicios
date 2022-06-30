@@ -8,9 +8,10 @@ from widgets.widgets import textEdit, buttonWidget, labelWidget
 from globalElements import constants, db
 
 class main(QMainWindow):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
-        
+        self.table = ''
+        self.db = db
         self.fontSize = 13
         self.dirty = False
         self.init_model_ui()
@@ -28,13 +29,12 @@ class main(QMainWindow):
         self.configure_layout()
         self.configureForm()
         self.set_main_connections()
-        self.init_db()
+        # self.init_db()
 
 
-    def init_db(self):
-        self.db = db.main()
-        # self.expediente = self.db.expediente
-        self.table = 'detalles'
+    # def init_db(self):
+    #     self.db = db.main()
+    #     self.table = 'detalles'
         
     
 
@@ -86,13 +86,17 @@ class main(QMainWindow):
         for i in self.formItems.values():
             i.reSet()
 
-    def populate(self):
-        sql = f''' --sql
-        SELECT * FROM {self.table};''' 
+    def populate(self, record={}): 
+        if not record:
+            sql = f''' --sql
+            SELECT * FROM {self.table};''' 
+            record = self.db.select_dict(sql)
+            if record:
+                record = record[0]
         try: 
-            record = self.db.select_dict(sql)[0] 
             for k, v in self.formItems.items():
-                v.populate(record[k])
+                try: v.populate(record[k])
+                except: v.clear()
         except: 
             self.clear()
 
@@ -168,6 +172,7 @@ class main(QMainWindow):
                 sql = self.get_sql_update()
                 self.db.save(sql, (id_,))
                 self.status_bar.showMessage('El registro se actualizó exitosamente', 10000)
+                
             else:
                 sql = self.get_sql_create_table()
                 self.db.execute(sql)
@@ -176,6 +181,7 @@ class main(QMainWindow):
                 self.id_.populate(id_)
                 self.status_bar.showMessage('El registro se creó exitosamente', 10000)
             self.dirty = False
+            return id_
         else:
             self.status_bar.showMessage('No se guardó el registro', 1000)
 

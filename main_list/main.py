@@ -8,7 +8,7 @@ from urllib import response
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout, QStatusBar, QMainWindow, QGridLayout)
 from PyQt6.QtGui import QIcon, QCursor
 from PyQt6.QtCore import QSortFilterProxyModel, QRegularExpression, Qt
-from globalElements import constants, functions
+from globalElements import constants, functions, db
 from widgets import widgets
 from widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox
 from widgets.lineEdits import lineEditFilterGroup
@@ -38,8 +38,7 @@ class main(QMainWindow):
         self.initUi()
         self.requery()
 
-        # self.db = db.main()
-        # self.db.select_detalles() 
+        
 
     
     def __repr__(self) -> str:
@@ -122,13 +121,17 @@ class main(QMainWindow):
         self.proxy_search.setSourceModel(self.proxy_tipo)
         self.list.list.setModel(self.proxy_search)
 
-
+    def configure_form(self):
+        self.db = db.main()
+        self.form = form.main(self.db)
+        # self.form.table = 'detalles'
+        # self.form.db = self.db
 
 
     def config_layout(self):
         """Configuration of the layout of all widets"""
+        self.configure_form()
         self.filters = filters.main()
-        self.form = form.main()
         self.centralWidget_ = QWidget()
         self.layout_ = QGridLayout()
         self.layout_.setContentsMargins(0,0,0,0)
@@ -268,17 +271,11 @@ class main(QMainWindow):
      
 
     def selectionChanged(self):
-        
         self.save_detalles()
-        self.form.db.expediente = self.list.get_values()
+        #before changing db parameters, save
+        self.db.expediente = self.list.get_values()
         self.form.populate()
-        # self.form.expediente = 
-        # self.db.connect()
-        # detalles = self.db.select_detalles()
-        # if detalles:
-        #     self.form.populate(detalles)
-        # else:
-        #     self.form.clear()
+       
 
 
     def save_detalles(self):
@@ -395,7 +392,7 @@ class main(QMainWindow):
         if pwd == '202020':
             self.delete_warning_box.deleteLater()
             self.list.list.clearSelection()
-            self.form.db.connection.close()
+            self.db.connection.close()
             shutil.rmtree(folder)
             self.requery()
             self.status_bar.showMessage(f'Se ha eliminado el registro siguente:   {folder}', 4000)
@@ -432,7 +429,7 @@ class main(QMainWindow):
             current_path = f'{constants.ROOT_ENLACE}\{current_info[2]}\{current_info[0]}\{current_info[1]}'
             new_path = f'{constants.ROOT_ENLACE}\{activo}\{tipo}\{expediente}'
             self.list.list.clearSelection()
-            self.form.db.connection.close()
+            self.db.connection.close()
             try:
                 shutil.move(current_path, new_path)
             except:

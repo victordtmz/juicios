@@ -2,43 +2,28 @@ from cmath import exp
 import shutil
 import sys
 import os
-from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout, QStatusBar, QMainWindow)
-from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import QSortFilterProxyModel, QRegularExpression
+from PyQt6.QtWidgets import (QGridLayout,QApplication, QHBoxLayout, QWidget, QVBoxLayout, QStatusBar, QMainWindow)
+from PyQt6.QtGui import QIcon, QCursor
+from PyQt6.QtCore import QSortFilterProxyModel, QRegularExpression, Qt
 from globalElements import constants, functions
 from widgets import widgets
 from widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox
 from widgets.lineEdits import lineEditFilterGroup
 from progreso import form, list_
+from globalElements import db
+from widgets.filesTree import filesTree
 
 # import mainList
 
 
 
 class main(QMainWindow):
-    """it takes bot widgets, mainLis and filterList into this widget, populating both lists and 
-    adding functionality (filter application, removal, search)
-
-    Args:
-        QWidget
-    """
-    def __init__(self):
+    def __init__(self, expediente):
       
         super().__init__()
-        self.activos = {}
-        self.inactivos = {}
-        self.activos_checked = True
-        self.inactivos_checked = False
-        self.filter_items = set([])
-        self.expediente = self.form.db.expediente
-        
-        
+        self.expediente = expediente
         self.initUi()
         self.requery()
-
-        # self.db = db.main()
-        # self.db.select_detalles()
-
     
     def __repr__(self) -> str:
         return '''Main Window => Juicios y Trámites'''
@@ -54,7 +39,8 @@ class main(QMainWindow):
         self.status_bar.setContentsMargins(0,0,0,0)
         self.setStatusBar(self.status_bar)
         # self.tipo_filters()
-        self.config_main_list()
+        # self.config_main_list()
+        self.configure_heading()
         self.config_layout()
         self.showMaximized()
         self.set_connections()
@@ -66,134 +52,96 @@ class main(QMainWindow):
         # self.filters.search.txt.textChanged.connect(self.apply_search)
         self.list.list.selectionModel().selectionChanged.connect(self.selectionChanged)
         self.form.btn_save.pressed.connect(self.save_detalles)
-        self.list.btn_requery.pressed.connect(self.requery)
+        self.btn_requery.pressed.connect(self.requery)
         # self.list.btn_new.pressed.connect(self.new_item)
         # self.list.btn_delete.pressed.connect(self.delete_window_open)
         # self.list.btn_edit.pressed.connect(self.edit_window_open)
 
 
-    def config_main_list(self):
-        """Configuration of main list items (Juicios)
-        """
-        self.list = list_.main()
-        self.proxy_tipo = QSortFilterProxyModel()
-        self.proxy_tipo.setSourceModel(self.list.list.standardModel)
-        self.proxy_search = QSortFilterProxyModel()
-        self.proxy_search.setSourceModel(self.proxy_tipo)
-        self.list.list.setModel(self.proxy_search)
+    def configure_heading(self): 
+        self.heading = QWidget()
+        self.heading_layout = QHBoxLayout()
+        # self.heading_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.heading_layout.setContentsMargins(0,0,0,0)
+        self.heading_layout.setSpacing(0)
+        self.heading.setLayout(self.heading_layout)
+
+        self.btn_folder = buttonWidget('  Abrir carpeta',13, icon=constants.iconOpenFolder)
+        self.btn_requery = buttonWidget('  Refresh', 13, constants.iconRefresh)
+        self.btn_new = buttonWidget('   Nuevo', 13, constants.iconNew)
+        self.btn_delete = buttonWidget('  Eliminar', 13, constants.iconDelete)
+        self.spacer = buttonWidget()
+        cursor = QCursor(Qt.CursorShape.ArrowCursor)
+        self.spacer.setCursor(cursor)
+        # self.spacer.setMinimumWidth(500)
+
+        self.heading_layout.addWidget(self.btn_requery)
+        self.heading_layout.addWidget(self.btn_folder)
+        self.heading_layout.addWidget(self.btn_new)
+        self.heading_layout.addWidget(self.btn_delete)
+        self.heading_layout.addWidget(self.spacer,1)
+        
 
 
 
 
     def config_layout(self):
         """Configuration of the layout of all widets"""
-        self.form = form.main()
+        #init files window
+        self.files_tree = filesTree()
+        self.files_tree.setLineEditFileBox(13)
+        self.files_tree.txtFilePath.setText(f'{constants.ROOT_ENLACE}\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}')
+        
+        #init Form
+        self.db = db.main()
+        self.db.expediente = self.expediente
+        self.form = form.main(self.db)
+        self.form.file_ = self.files_tree.layoutLineEditFileBox
+        self.form.lineEditItems = self.files_tree.lineEditItems
+        
+        self.form.initiate_super()
+        # init list
+
+        self.list = list_.main(self.db)
+
+
+
         self.centralWidget_ = QWidget()
-        self.layout_ = QHBoxLayout()
+        self.layout_ = QGridLayout()
         self.layout_.setContentsMargins(0,0,0,0)
         # self.layout_.addWidget(self.filters)
-        self.layout_.addWidget(self.list,1)
-        self.layout_.addWidget(self.form,1)
+        self.layout_.addWidget(self.heading,0,0,1,3)
+        self.layout_.addWidget(self.list,1,0)
+        self.layout_.addWidget(self.form,1,1)
+        self.layout_.addWidget(self.files_tree,1,2)
         self.centralWidget_.setLayout(self.layout_)
         self.setCentralWidget(self.centralWidget_)
 
-    def apply_filter_tipo(self):
-        """When selection changes of case list (civil, administrativo, migratorio, etc), 
-        (including removing a selection), it will take the selected item and filter out the juicios list
-        to only that categorie.
-
-        If nothing is selected, it will search for empty sting, removing this filter. 
-        
-        Search column: 0 - this is the column on juicios list.  
-
-        Search type: literal string - Exact match. 
-
-        """
-        selection_model = self.filters.selection_model
-        if selection_model.hasSelection():
-            text = self.filters.get_value()
-        else: text = ''
-        self.proxy_tipo.setFilterFixedString(text)
-        self.proxy_tipo.setFilterKeyColumn(0)
-
-    def apply_search(self):
-        """When any character is typed or removed, this method will execute, searching for a match. 
-
-        Search column: all columns. 
-        
-        search type: regular expression. (set to iclude latin or non latin vowels (Á == a))
-        """
-        value = self.filters.search.getInfo()
-        value = functions.create_regEx(value)
-        value = QRegularExpression(value,QRegularExpression.PatternOption.CaseInsensitiveOption)
-        self.proxy_search.setFilterRegularExpression(value)
-        self.proxy_search.setFilterKeyColumn(-1)
-
-            
 
     def requery(self):
-        """From: OneDrive/enlace
-        Scanns Juicios and places items in self.activos dictionary.
-        Scans Juicios_archivados and places items in self.inactivos dictionary. 
-
-        Items: 
-            - First pass will collect the folder names and place it as "tipo" (it's the category)
-            - Second pass will get the sub-folders and place each as the case to be attended. 
-        """
+        self.list.requery()
         #obtener all elements from activos
-        self.activos.clear()
-        for folder in os.scandir(constants.ROOT_JUICIOS):
-            if folder.is_dir():
-                tipo = folder.name
-                for subFolder in os.scandir(folder):
-                    if subFolder.is_dir():
-                        expediente = subFolder.name
-                        if tipo in self.activos:
-                            self.activos[tipo].append(expediente)
-                        else:
-                            self.activos[tipo] = [expediente]
-
-        # Obtener all elements from inactivos
-        self.inactivos.clear()
-        for folder in os.scandir(constants.ROOT_JUICIOS_ARCHIVADOS):
-            if folder.is_dir():
-                tipo = folder.name
-                for subFolder in os.scandir(folder):
-                    if subFolder.is_dir():
-                        expediente = subFolder.name
-                        if tipo in self.inactivos:
-                            self.inactivos[tipo].append(expediente)
-                        else:
-                            self.inactivos[tipo] = [expediente]
-                
-        self.populate()
+        # sql = '''
+        # --sql
+        # SELECT id, 
+        #     date_ AS 'Fecha',
+        #     title AS 'Titulo', 
+        #     description_ AS 'Descripcion', 
+        #     file_ AS 'Archivo'
+        # FROM registros;
+        # '''
         
-    def populate(self):
-        """To avoid scannind the directories at every time a search or toggle between activos and inactivos, 
-        this function will take the information placed on self.activos and self.inactivos and use to populate 
-        the lists on the widget. 
-        """
-        #filter list
-        self.filter_items.clear()
-        self.list.remove_all_items()
+        # records, labels = self.db.select_dict_labels(sql)
+        # self.list.remove_all_items()
+        # for i in records:
+        #     self.list.add_item(i)
         
-        # Activos
-        if self.activos_checked:
-            #add items not included in filter items
-            self.filter_items.update(self.activos.keys())
-            # convert the values of the dict into a tupple with type of juicio
-            for k, values in self.activos.items():
-                activos = list(map(lambda v: (k,v, 'Juicios'), values))
-                self.list.add_activos(activos)
+        # self.list.list.standardModel.setHorizontalHeaderLabels(labels)
         
-        #inactivos
-        if self.inactivos_checked:
-            self.filter_items.update(self.inactivos.keys())
-            for k, values in self.inactivos.items():
-                inactivos = list(map(lambda v: (k,v, 'Juicios_archivados'), values))
-                self.list.add_inactivos(inactivos)
-
-        self.list.list.setColumnHidden(2, True)
+        # self.list.list.setColumnHidden(0, True)
+        # self.list.list.setColumnHidden(3, True)
+        # self.list.list.setColumnHidden(4, True)
+        # self.list.proxy_search
 
         #filter list
 
@@ -223,11 +171,17 @@ class main(QMainWindow):
      
 
     def selectionChanged(self):
-        
         self.save_detalles()
-        self.form.db.expediente = self.list.get_values()
-        self.form.populate()
-        # self.form.expediente = 
+        # prev_id = self.form.save() 
+        # if prev_id:
+        #     curr_id = self.list.get_id()
+        #     self.requery()
+        #     self.list.select_record_id(curr_id)
+        # else:
+        #     # self.form.db.expediente = self.list.get_values()
+        #     values = self.list.get_values_dict()
+        #     self.form.populate(values)
+        # self.form.expediente = self.requeryd
         # self.db.connect()
         # detalles = self.db.select_detalles()
         # if detalles:
@@ -237,7 +191,15 @@ class main(QMainWindow):
 
 
     def save_detalles(self):
-        self.form.save()
+        prev_id = self.form.save() 
+        if prev_id:
+            curr_id = self.list.get_id()
+            self.requery()
+            self.list.select_record_id(curr_id)
+        else:
+            # self.form.db.expediente = self.list.get_values()
+            values = self.list.get_values_dict()
+            self.form.populate(values)
         # if self.form.dirty:
             # detalles = self.form.get_info()
             # msg = self.form.save()
@@ -245,6 +207,10 @@ class main(QMainWindow):
             # self.status_bar.showMessage(f'{msg[0]}', 10000)
             # if msg[1]:
             #     self.form.id_.populate(msg[1])
+
+    # def configure_form(self):
+    #     self.db = db.main()
+    #     self.form = form.main('registros' ,self.db)
         
 
     

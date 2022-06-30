@@ -8,21 +8,21 @@ class main:
         self.define_global()
 
     def define_global(self):
-        self.database = 'registros.avd'
-        self.tbl_registros = 'registros'
+        # self.database = 'registros.avd'
+        # self.tbl_registros = 'registros'
         # self.tbl_detalles = 'detalles'
         # self.OneDrive = os.path.expanduser('~\OneDrive')
-        self.OneDrive = constants.ROOT_ENLACE
+        self.root = constants.ROOT_ENLACE
         self.expediente = []
 
     def connect(self):
         #expediente (Tipo, Juicio, Activo)
         if self.expediente:
-            database = f'{self.OneDrive}\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}\desgloce\\registros.avd'
+            database = f'{self.root}\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}\desgloce\\registros.avd'
             try: 
                 self.connection = sqlite3.connect(database)
             except: 
-                os.mkdir(f'{self.OneDrive}\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}\desgloce')
+                os.mkdir(f'{self.root}\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}\desgloce')
                 self.connection = sqlite3.connect(database)
             self.cursor = self.connection.cursor()
 
@@ -39,10 +39,17 @@ class main:
         self.execute(sql, var, False)
         self.connection.close()
         return self.cursor.lastrowid
-        
+         
 
 
     def select(self, sql:str):
+        self.connect()
+        records = self.cursor.execute(sql)
+        records = records.fetchall()
+        self.connection.close()
+        return records
+
+    def select_labels(self, sql:str):
         self.connect()
         records = self.cursor.execute(sql)
         records = records.fetchall()
@@ -56,6 +63,16 @@ class main:
         record = self.dict_factory(self.cursor.description, record)
         return record
 
+    def select_dict_labels(self, sql):
+        self.connect()
+        records = self.cursor.execute(sql)
+        records = records.fetchall()
+        labelsInfo = self.cursor.description
+        self.connection.close()
+        labels = []
+        for label in labelsInfo:
+            labels.append(label[0])
+        return (records, labels)
 
     def dict_factory(self, description, records):
         all_records = []

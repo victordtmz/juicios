@@ -52,7 +52,6 @@ class main(QMainWindow):
         self.btn_requery.pressed.connect(self.requery)
         self.btn_new.pressed.connect(self.new_record)
         self.btn_delete.pressed.connect(self.delete_record)
-        self.btn_folder.pressed.connect(self.open_folder)
 
 
 
@@ -63,18 +62,16 @@ class main(QMainWindow):
         self.heading_layout.setSpacing(0)
         self.heading.setLayout(self.heading_layout)
 
-        self.btn_folder = buttonWidget('  Abrir carpeta',13, icon=constants.iconOpenFolder)
-        self.btn_requery = buttonWidget('  Refresh', 13, constants.iconRefresh)
-        self.btn_new = buttonWidget('   Nuevo', 13, constants.iconNew)
-        self.btn_delete = buttonWidget('  Eliminar', 13, constants.iconDelete)
+        self.btn_requery = buttonWidget('  Refresh', 13, constants.iconRefresh,size='h2')
+        self.btn_new = buttonWidget('   Nuevo', 13, constants.iconNew, size='h2')
+        self.btn_delete = buttonWidget('  Eliminar', 13, constants.iconDelete, size='h2')
 
-        self.spacer = buttonWidget()
+        self.spacer = buttonWidget(size='h2')
         cursor = QCursor(Qt.CursorShape.ArrowCursor)
         self.spacer.setCursor(cursor)
         # self.spacer.setMinimumWidth(500)
 
         self.heading_layout.addWidget(self.btn_requery)
-        self.heading_layout.addWidget(self.btn_folder)
         self.heading_layout.addWidget(self.btn_new)
         self.heading_layout.addWidget(self.btn_delete)
         self.heading_layout.addWidget(self.spacer,1)
@@ -158,8 +155,8 @@ class main(QMainWindow):
         self.form.date_.btnTodayPressed()
         self.form.title_.setFocus()
 
-    def open_folder(self):
-        self.files_tree.folderOpen()
+    # def open_folder(self):
+    #     self.files_tree.folderOpen()
 
     def cancel_form_edit(self):
         if self.list.list.selectionModel().hasSelection():

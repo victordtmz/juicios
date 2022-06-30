@@ -14,7 +14,7 @@ class main(form_model.main):
         # super().__init__()
         self.table = 'detalles' #USE THIS TO SET SQL FROM HERE ----------------------------
         self.get_sql_update()
-        self.title.setText('Detalles del Trámite')
+        # self.title.setText('Detalles del Trámite')
         
     def configureForm(self):
         
@@ -49,6 +49,8 @@ class main(form_model.main):
         self.form_layout.addRow(labelWidget('Codigo postal:', self.fontSize) ,self.cp)
         self.form_layout.addRow(labelWidget("Descripcion", 14, True, fontColor="Black", align="center"))
         self.form_layout.addRow(self.description)
+        
+
         # self.form_scroll_area.setWidget(self.form_widget)
 
         self.formItems = { 
@@ -64,6 +66,26 @@ class main(form_model.main):
             'estado':self.estado,
             'cp': self.cp, 
             'descripcion':self.description}
+
+    def get_sql_create_table(self):
+        sql = f'''
+        --sql
+        CREATE TABLE IF NOT EXISTS {self.table} (
+            id INTEGER PRIMARY KEY,
+            cliente TEXT,
+            expediente TEXT,
+            fecha_ TEXT,
+            honorarios_ REAL,
+            telefono TEXT,
+            domicilio TEXT,
+            domicilio1 TEXT,
+            ciudad TEXT,
+            estado TEXT,
+            cp TEXT,
+            descripcion TEXT
+            );
+        '''
+        return sql
 
 
         

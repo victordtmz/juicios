@@ -107,11 +107,11 @@ class filesTree(QMainWindow):
     def setLineEditFileBox(self, fontSize=13):
         self.lineEditItems = lineEditFilterGroup(fontSize,"Archivo:", clearFilter=False)
         # self.lineEditItems.lbl.deleteLater()
-        self.btnOpen =  buttonWidget(text="Abrir archivo", size="h2", icon=constants.iconOpenFolder)
+        self.btnOpen =  buttonWidget(text="Abrir archivo", size="h2_form", icon=constants.iconOpenFolder)
         # self.btnOpen.setMinimumHeight(30)
         self.btnOpen.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed)
         # self.btnOpen.setMinimumWidth(130)
-        self.btnLinkFile = buttonWidget(text="Vincular archivo", size="h2", icon=constants.iconLink)
+        self.btnLinkFile = buttonWidget(text="Vincular archivo", size="h2_form", icon=constants.iconLink)
         self.btnLinkFile.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed)
         
         self.layoutLineEditFile = QGridLayout()

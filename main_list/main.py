@@ -88,7 +88,7 @@ class main(QMainWindow):
         self.btn_requery = buttonWidget('  Refresh', 13, constants.iconRefresh)
         self.btn_new = buttonWidget('   Nuevo', 13, constants.iconNew)
         self.btn_delete = buttonWidget('  Eliminar', 13, constants.iconDelete)
-        self.btn_edit = buttonWidget(' Editar', 13)
+        self.btn_edit = buttonWidget(' Editar', 13, constants.iconEdit)
         self.btn_details = buttonWidget('  Detalles', 13, constants.iconFilter)
         self.spacer = buttonWidget()
         cursor = QCursor(Qt.CursorShape.ArrowCursor)

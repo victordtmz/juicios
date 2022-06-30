@@ -40,31 +40,37 @@ class main(QMainWindow):
 
     def configure_layout(self):
         #title layout
-        self.title = labelWidget('Formulario', 18, True, 'white', 'center', '#002142', '5px')
+        # self.title = labelWidget('Formulario', 18, True, 'white', 'center', '#002142', '5px')
 
         #form items layout
         self.form_widget = QWidget()
         self.form_widget.setMaximumWidth(600)
+        self.form_widget.setMinimumWidth(550)
         self.form_layout = QFormLayout()
-        self.form_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        
+        
         self.form_widget.setLayout(self.form_layout)
         self.form_scroll_area = QScrollArea()
+        self.form_scroll_area.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+
+        # self.form_scroll_area.setpo
         self.form_scroll_area.setStyleSheet(('''QScrollArea {border-style: none;};'''))
         self.form_scroll_area.setWidgetResizable(True)
+        # self.form_scroll_area.setmin
         # self.layout_.setAlignment(self.form_scroll_area, Qt.AlignmentFlag.AlignHCenter)
 
         self.form_scroll_area.setWidget(self.form_widget)
         
 
         #save and cancel buttons
-        
         self.btn_widget = QWidget()
         self.btn_layout = QHBoxLayout()
         self.btn_widget.setLayout(self.btn_layout)
-        self.btn_save = buttonWidget('Guardar', 13, constants.iconSave, 'h2')
-        self.btn_cancel = buttonWidget('Cancelar', 13, constants.iconCancel, 'h2')
+        self.btn_save = buttonWidget('Guardar', 13, constants.iconSave, 'h2_form')
+        self.btn_cancel = buttonWidget('Cancelar', 13, constants.iconCancel, 'h2_form',)
         self.btn_layout.addWidget(self.btn_cancel)
         self.btn_layout.addWidget(self.btn_save)
+        self.btn_widget.setMaximumWidth(550)
 
         #main layout
         self.widget_ = QWidget()
@@ -73,9 +79,10 @@ class main(QMainWindow):
         self.layout_ = QVBoxLayout()
         self.layout_.setContentsMargins(0,0,0,0)
         self.widget_.setLayout(self.layout_)
-        self.layout_.addWidget(self.title)
+        # self.layout_.addWidget(self.title)
         self.layout_.addWidget(self.form_scroll_area)
         self.layout_.addWidget(self.btn_widget)
+        self.layout_.setAlignment(self.btn_widget ,Qt.AlignmentFlag.AlignHCenter)
 
     @abstractmethod
     def configureForm(self):
@@ -107,31 +114,16 @@ class main(QMainWindow):
         return list(map(lambda x: x.getDbInfo(), self.formItems.values()))
 
     def set_main_connections(self):
+        self.destroyed.connect(self.save)
         for i in self.formItems.values():
             i.editingFinished.connect(self.set_form_dirty)
     
     def set_form_dirty(self):
         self.dirty = True
-
+    
+    @abstractmethod
     def get_sql_create_table(self):
-        sql = f'''
-        --sql
-        CREATE TABLE IF NOT EXISTS {self.table} (
-            id INTEGER PRIMARY KEY,
-            cliente TEXT,
-            expediente TEXT,
-            fecha_ TEXT,
-            honorarios_ REAL,
-            telefono TEXT,
-            domicilio TEXT,
-            domicilio1 TEXT,
-            ciudad TEXT,
-            estado TEXT,
-            cp TEXT,
-            descripcion TEXT
-            );
-        '''
-        return sql
+        pass
 
     def get_sql_update(self):
         values = ''
@@ -150,20 +142,26 @@ class main(QMainWindow):
         return sql
 
     def get_sql_new(self):
-        columns = ''
         values = ''
+        columns = ''
+        #create a copy of formItems dict
         items = self.formItems.copy()
+        #remove id form copy
         del items['id']
+        #from the key(same as db column name) value(widget that contains the value) pairs of the 
         for k,v in items.items():
             value = v.getDbInfo()
-            values += f"{k},"
-            columns += f"'{value}',"
-        values = values[:-1]
+            #get all column names from keys, separated by a comma
+            columns += f"{k},"
+            #get all the values, separated by a comma
+            values += f"'{value}',"
+        #remove comma from both values
         columns = columns[:-1]
-        
+        values = values[:-1]
+        #conform and return sql
         sql = f'''
             --sql
-            INSERT INTO {self.table} ({values}) VALUES ({columns});
+            INSERT INTO {self.table} ({columns}) VALUES ({values});
             '''
         return sql
     

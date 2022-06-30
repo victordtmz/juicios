@@ -221,6 +221,36 @@ class buttonWidget(QPushButton):
                         
                         }
                     '''
+
+            case 'h2_form':
+                self.setMinimumHeight(28)
+                style = '''
+                    QPushButton {
+                        background-color: #134A4D;
+                        
+                        color :white  ;
+                        border-radius: 5px;
+                        padding-right: 15px;
+                        padding-left: 15px;
+                        
+                        
+                        border-width: 1px;
+                        }
+                    QPushButton:pressed {
+                        background-color: rgba(0,51,0,.2);
+                        border-color: rgba(0,51,0,1);
+                        color : Black ;
+                        
+                        border-radius: 5px;
+                        border-width: 1px;
+                        }
+                        
+                    QPushButton:hover:!pressed { 
+                        background-color: rgba(0,51,0,.6);
+                        border-color: rgba(0,51,0,1);
+                        }
+                    '''
+
             case 'icon':
                 self.setFixedSize(25,25)
                 style = '''
@@ -449,6 +479,7 @@ class deleteWarningBox(QMessageBox):
         self.setIcon(QMessageBox.Icon.Information)
 
 class tabWidget(QTabWidget):
+    tab_closed = pyqtSignal()
     def __init__(self, size:str="h1"):#self, fontSize=10, selectedSize=16
         super().__init__()
         self.setContentsMargins(0,0,0,0)
@@ -516,6 +547,7 @@ class tabWidget(QTabWidget):
     
     
 
-    def close_tab_requested(self, intVar):
-        if intVar:
-            self.removeTab(intVar)
+    def close_tab_requested(self, index):
+        self.tab_closed.emit()
+        if index:
+            self.removeTab(index)

@@ -14,7 +14,7 @@ class main(form_model.main):
         super().__init__(self.db)
         self.table = 'registros' #USE THIS TO SET SQL FROM HERE ----------------------------
         self.get_sql_update()
-        self.title.setText('Detalles del Trámite')
+        # self.title.setText('Detalles del Trámite')
         
     def configureForm(self):
         self.date_ = dateWidget(self.fontSize)
@@ -41,6 +41,19 @@ class main(form_model.main):
             'title': self.title_, 
             'description_': self.description_,
             'file_': self.lineEditItems}
+
+    def get_sql_create_table(self):
+        sql = f'''
+        --sql
+        CREATE TABLE IF NOT EXISTS {self.table} (
+            id INTEGER PRIMARY KEY,
+            date_ TEXT,
+            title TEXT,
+            description_ TEXT,
+            file_ TEXT
+            );
+        '''
+        return sql
 
 
         

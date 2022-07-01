@@ -1,3 +1,4 @@
+from ast import Try
 import sys
 import os
 import shutil
@@ -42,8 +43,9 @@ class main(QWidget):
             file_ AS 'Archivo'
         FROM registros;
         '''
-        
-        records, labels = self.db.select_dict_labels(sql)
+        try: records, labels = self.db.select_dict_labels(sql)
+        except: return
+            
         self.list.remove_all_items()
         for i in records:
             self.add_item(i)
@@ -55,27 +57,6 @@ class main(QWidget):
         self.list.setColumnHidden(4, True)
         self.proxy_search.sort(1, Qt.SortOrder.DescendingOrder)
         
-
-
-    # def configure_heading(self):
-    #     self.heading = QWidget()
-    #     self.heading_layout = QHBoxLayout()
-    #     self.heading_layout.setContentsMargins(0,0,0,0)
-    #     self.heading_layout.setSpacing(0)
-    #     self.heading.setLayout(self.heading_layout)
-
-    #     self.btn_folder = buttonWidget('  Abrir carpeta',13, icon=constants.iconOpenFolder)
-    #     self.btn_requery = buttonWidget('  Refresh', 13, constants.iconRefresh)
-    #     self.btn_new = buttonWidget('   Nuevo', 13, constants.iconNew)
-    #     self.btn_delete = buttonWidget('  Eliminar', 13, constants.iconDelete)
-
-    #     self.heading_layout.addWidget(self.btn_requery)
-    #     self.heading_layout.addWidget(self.btn_folder)
-    #     self.heading_layout.addWidget(self.btn_new)
-    #     self.heading_layout.addWidget(self.btn_delete)
-
-            
-
     def configure_list(self):
         self.list = treeView()#params fontSize = 13, rowHeight = 42
         self.list.setSortingEnabled(True)
@@ -106,8 +87,6 @@ class main(QWidget):
         self.proxy_search.setFilterKeyColumn(-1)
         self.proxy_search.sort(1, Qt.SortOrder.DescendingOrder)
 
-        
-
     def add_item(self, item):
         """appends given item to end-bottom of the list
 
@@ -122,35 +101,27 @@ class main(QWidget):
         self.list.remove_all_items()
 
     def get_id(self) -> str:
-        record = self.list.get_values()
+        record = self.list.get_row_values()
         if record:
             return record[0]
 
-    def get_values(self)->list:
+    def get_row_values(self)->list:
         """Gets the values for the selected record
-
         Returns:
             list: list of string values selected ()
             0 => Tipo; data: case category. 
             1 => Expediente; data: Client name with short case explanation.
             2 => Activos; data: Actio or inactivo - for loading.
         """
-        values = self.list.get_values() 
-        
-        values_dict = {}
-        values_dict['id'] = values[0]
-        values_dict['date_'] = values[1]
-        values_dict['title'] = values[2]
-        values_dict['description_'] = values[3]
-        values_dict['file_'] = values[4]
-        return values_dict
+        values = self.list.get_row_values() 
+        return values
     
-    def get_values_dict(self)->dict:
+    def get_row_db_values_dict(self)->dict:
         """Gets the values for the selected record
         Returns:
             dict: Dictionary with same key value as headers in table. 
         """
-        values = self.list.get_values() 
+        values = self.list.get_row_values() 
         if values:
         
             values_dict = {}
@@ -161,51 +132,26 @@ class main(QWidget):
             values_dict['file_'] = values[4]
             return values_dict
 
-    # def get_file_path(self):
-    #     record = self.list.get_values()
-    #     if record:
-    #         folder = f'{constants.ROOT_ENLACE}\{record[2]}\{record[0]}\{record[1]}'
-    #         return folder
-    
-    # def open_folder(self):
-    #     folder = self.get_file_path() 
-    #     if folder:
-    #         os.startfile(folder)
+    def get_row_values_dict(self):
+        """
+        Returns:
+            dict: Dictionary with row values with headers as keys
+        """
+        return self.list.get_row_values_dict()
 
-    def select_record_id(self, text):
+    def select_record_by_id(self, id_):
+        """Will search for a record with the given id and select it if found.
+        Args:
+            id_ (str): record id 
+        """
         model = self.proxy_search
         no_records= model.rowCount()
         current_row = 0
         while current_row < no_records:
             index = model.index(current_row, 0)
             current_value = model.data(index)
-            if current_value == text:
+            if current_value == id_:
                 self.list.setCurrentIndex(index)
                 break
             current_row += 1
 
-   
-    
-    # def delete(self):
-        
-    #     folder = self.get_file_path()
-    #     if folder:
-    #         # os.chmod(folder, 0o777)
-    #         # os.rmdir(folder)
-    #         self.list.clearSelection()
-    #         shutil.rmtree(folder)
-
-    # def find_item(self, text):
-    #     model = self.proxym
-    #     no_records= model.rowCount()
-    #     current_row = 0
-    #     while current_row < no_records:
-    #         index = model.index(current_row, 1)
-    #         current_value = model.data(index)
-    #         if current_value == text:
-    #             self.list.setCurrentIndex(index)
-    #             break
-    #         current_row += 1
-
-   
-        # sys.exit(app.exec())

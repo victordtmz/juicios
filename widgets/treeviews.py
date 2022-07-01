@@ -58,13 +58,28 @@ class treeView(QTreeView):
     def remove_all_items(self):
         self.standardModel.removeRows(0, self.standardModel.rowCount())
     
-    def get_values(self)-> list:
+    def get_row_values(self)-> list:
         """Returns:
             list: returns of list of values for the selected record
         """
         indexes = self.selectionModel().selectedIndexes()
         values = list(map(lambda i: i.data(), indexes))
         return values
+
+    def get_row_values_dict(self)->dict:
+        """
+        Returns:
+            dict: Dictionary with row values with headers as keys
+        """
+        indexes = self.selectionModel().selectedIndexes()
+        values = list(map(lambda i: i.data(), indexes))
+        dict_values = {}
+        index = 0
+        for value in values:
+            column_header = self.standardModel.horizontalHeaderItem(index).text()
+            dict_values[column_header] = value
+            index += 1
+        return dict_values
 
        
 

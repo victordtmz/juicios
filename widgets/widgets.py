@@ -252,31 +252,32 @@ class buttonWidget(QPushButton):
                     '''
 
             case 'icon':
-                self.setFixedSize(25,25)
-                style = '''
-                    QPushButton {
-                        background-color: #dce5fc;
-                        color :white  ;
-                        padding-right: 15px;
-                        padding-left: 15px;
-                        margin: 0;
-                        border-style: solid;
-                        border-width: 1px;
-                        border-color: #b5b5b5;
-                        }
+                self.setFixedSize(28,28)
+                # style = '''
+                #     QPushButton {
+                #         background-color: #dce5fc;
+                #         color :white  ;
+                #         padding-right: 15px;
+                #         padding-left: 15px;
+                #         margin: 0;
+                #         border-style: solid;
+                #         border-width: 1px;
+                #         border-color: #b5b5b5;
+                #         }
                     
-                    QPushButton:pressed {
-                        background-color: rgba(0,51,0,.2);
-                        color : Black ;
-                        }
+                #     QPushButton:pressed {
+                #         background-color: rgba(0,51,0,.2);
+                #         color : Black ;
+                #         }
 
-                    QPushButton:hover:!pressed { 
-                        text-decoration: underline;
-                        background-color: #a7bffc;
-                        }
-                    '''
+                #     QPushButton:hover:!pressed { 
+                #         text-decoration: underline;
+                #         background-color: #a7bffc;
+                #         }
+                #     '''
 
-        self.setStyleSheet(style)
+        if 'style' in locals():
+            self.setStyleSheet(style)
 
         
 
@@ -464,7 +465,7 @@ class textEdit(QTextEdit):
     def textChanged_(self):
         self.dirty = True
     
-class deleteWarningBox(QMessageBox): 
+class okWarningBox(QMessageBox): 
     def __init__(self, text='', fontSize=13):
         super().__init__()
         self.iconAVD = QIcon( f'{constants.ICONS_FOLDER}\enlace.png')
@@ -477,6 +478,12 @@ class deleteWarningBox(QMessageBox):
         self.setFont(font)
         self.setStandardButtons(QMessageBox.StandardButton.Ok)
         self.setIcon(QMessageBox.Icon.Information)
+
+class yesNoWarningBox(okWarningBox): 
+    def __init__(self, text='', fontSize=13):
+        super().__init__(text, fontSize)
+        self.setStandardButtons(QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No)
+
 
 class tabWidget(QTabWidget):
     tab_closed = pyqtSignal()

@@ -94,7 +94,7 @@ class main(QWidget):
             1 => Expediente; data: Client name with short case explanation.
             2 => Activos; data: Actio or inactivo - for loading.
         """
-        return self.list.get_values()
+        return self.list.get_row_values()
 
     def add_activos(self, items):
         """Adds record with font and row height defined on tree.
@@ -113,7 +113,7 @@ class main(QWidget):
         self.list.add_items(items, 'dark red')
 
     def get_file_path(self):
-        record = self.list.get_values()
+        record = self.list.get_row_values()
         if record:
             folder = f'{constants.ROOT_ENLACE}\{record[2]}\{record[0]}\{record[1]}'
             return folder

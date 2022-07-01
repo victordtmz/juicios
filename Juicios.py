@@ -3,11 +3,11 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow)
 from PyQt6.QtGui import QIcon 
 from PyQt6.QtCore import QSortFilterProxyModel
 from globalElements import constants
-from widgets.widgets import tabWidget, deleteWarningBox
+from widgets.widgets import tabWidget, okWarningBox
 from main_list.main import main as mainList
 # from progreso import main as progreso
 import detalles
-# import mainList 
+# import mainList  
 
 class main(QMainWindow):
     def __init__(self):  
@@ -16,7 +16,7 @@ class main(QMainWindow):
 
     def init_ui(self):
         self.setWindowTitle('Enlace LLC - Juicios y Trámites')
-        self.iconEnlace = QIcon( f'{constants.DB_FILES}\icons\enlace_juicios.png')
+        self.iconEnlace = QIcon( f'{constants.DB_FILES}\icons\enlace_balance.png')
         self.setWindowIcon(self.iconEnlace)
         self.layout_config() 
         self.set_connections() 
@@ -40,7 +40,7 @@ class main(QMainWindow):
             self.tabWidget.addTab(self.details, expediente[1])
             self.tabWidget.setCurrentWidget(self.details)
         else:
-            msg = deleteWarningBox('Seleccione el registro que desea abrir.', 13)   
+            msg = okWarningBox('Seleccione el registro que desea abrir.', 13)   
             msg.exec() 
 
       

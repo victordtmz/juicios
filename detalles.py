@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QHBoxLayout, QV
 from PyQt6.QtGui import QCursor
 from PyQt6.QtCore import Qt
 from globalElements import constants, functions
-from widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox, tabWidget, deleteWarningBox
+from widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox, tabWidget, okWarningBox
 from main_list.main import main as mainList
 from progreso import main as progreso
 from main_list import form as detalles

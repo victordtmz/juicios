@@ -379,7 +379,7 @@ class main(QMainWindow):
             self.delete_warning_box.exec()
 
         else:
-            msg = widgets.deleteWarningBox('Seleccione el registro que desea eliminar.', 13)   
+            msg = widgets.okWarningBox('Seleccione el registro que desea eliminar.', 13)   
             msg.exec()         
             
             # self.list.list.clearSelection()
@@ -418,14 +418,14 @@ class main(QMainWindow):
 
             self.edit_form.exec()
         else:
-            msg = widgets.deleteWarningBox('Seleccione el registro que desea editar.', 13)   
+            msg = widgets.okWarningBox('Seleccione el registro que desea editar.', 13)   
             msg.exec()  
 
     def save_edit(self, current_info):
         tipo = self.edit_form.tipo.getInfo()
         expediente = self.edit_form.expediente.getInfo()
         activo = self.edit_form.activo.getInfo()
-        if tipo.strip() != current_info[0].strip() or expediente.strip() != current_info[1].strip():
+        if tipo.strip() != current_info[0].strip() or expediente.strip() != current_info[1].strip() or activo.strip() != current_info[2].strip():
             current_path = f'{constants.ROOT_ENLACE}\{current_info[2]}\{current_info[0]}\{current_info[1]}'
             new_path = f'{constants.ROOT_ENLACE}\{activo}\{tipo}\{expediente}'
             self.list.list.clearSelection()

@@ -8,10 +8,6 @@ class main:
         self.define_global()
 
     def define_global(self):
-        # self.database = 'registros.avd'
-        # self.tbl_registros = 'registros'
-        # self.tbl_detalles = 'detalles'
-        # self.OneDrive = os.path.expanduser('~\OneDrive')
         self.root = constants.ROOT_ENLACE
         self.expediente = []
 

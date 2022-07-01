@@ -27,7 +27,7 @@ class main(QMainWindow):
         self.tabWidget.addTab(self.main_list, 'Main Menu')
         
         self.setCentralWidget(self.tabWidget)
-
+    
     def set_connections(self):
         self.main_list.btn_details.pressed.connect(self.open_details)
         self.tabWidget.tab_closed.connect(self.before_tab_closed)

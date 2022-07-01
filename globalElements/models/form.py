@@ -1,14 +1,19 @@
 from abc import abstractmethod
-from this import s
-from PyQt6.QtWidgets import QMainWindow,QStatusBar, QWidget, QFormLayout, QScrollArea, QSizePolicy, QVBoxLayout, QHBoxLayout
+from PyQt6.QtWidgets import QMainWindow,QStatusBar, QWidget, QFormLayout, QScrollArea, QVBoxLayout, QHBoxLayout
 from PyQt6.QtCore import Qt
-from widgets.lineEdits import (lineEdit, 
-    lineEditCurrency, dateWidget, lineEditPhone)
-from widgets.widgets import textEdit, buttonWidget, labelWidget
-from globalElements import constants, db
+from widgets.lineEdits import (lineEdit)
+from widgets.widgets import buttonWidget
+from globalElements import constants
 
 class main(QMainWindow):
+    """extends QMainWinidow
+        - Model to be used for all forms - contains necessary methods and components to interact with main list, get elements directly from db and save directly to db. 
+
+        Args:
+            db (sqlite or mySql): Databased to be used in connection with form.
+        """
     def __init__(self, db):
+        
         super().__init__()
         self.table = ''
         self.db = db
@@ -19,29 +24,22 @@ class main(QMainWindow):
         
     
     def init_model_ui(self):
+        """call methods and create elements in ordered to be used when instatiating object. 
+        """
         self.id_ = lineEdit(self.fontSize)
         self.id_.setReadOnly(True)
         self.status_bar = QStatusBar()
         self.status_bar.setContentsMargins(0,0,0,0)
         self.setStatusBar(self.status_bar)
-        # self.setWidgetResizable(True)
-        # self.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.configure_layout()
         self.configureForm()
         self.set_main_connections()
-        # self.init_db()
 
-
-    # def init_db(self):
-    #     self.db = db.main()
-    #     self.table = 'detalles'
-        
-    
 
     def configure_layout(self):
-        #title layout
+        """Configures all elements and places them on the main layout. 
+        """
         # self.title = labelWidget('Formulario', 18, True, 'white', 'center', '#002142', '5px')
-
         #form items layout
         self.form_widget = QWidget()
         self.form_widget.setMaximumWidth(600)
@@ -86,14 +84,23 @@ class main(QMainWindow):
 
     @abstractmethod
     def configureForm(self):
+        """abstract method: set all form widgets, place them on form layout and create the self.formItems dict with such widgets. 
+        """
         self.formItems = {}
 
         
     def clear(self):
+        """iterate through all widgets in self.formItes values and sets to default or ''
+        """
         for i in self.formItems.values():
             i.reSet()
 
-    def populate(self, record={}): 
+    def populate(self, record:dict = {}): 
+        """Populates the form, a dict with values may be passed, else, it will collect the information from the Database
+
+        Args:
+            record (dict, optional): key => db column id. value => value to be inserted in corresponding widget. 
+        """
         if not record:
             sql = f''' --sql
             SELECT * FROM {self.table};''' 
@@ -109,23 +116,35 @@ class main(QMainWindow):
         except: 
             self.clear()
 
-
-    def get_info(self):
-        return list(map(lambda x: x.getDbInfo(), self.formItems.values()))
-
     def set_main_connections(self):
+        """sets all widget connections, including:(event:save, signal:self.destroyed)
+        """
         self.destroyed.connect(self.save)
         for i in self.formItems.values():
             i.editingFinished.connect(self.set_form_dirty)
     
     def set_form_dirty(self):
+        """sets self.dirty to True.
+        signal: editingFinished - all of self.formItems widgets 
+        """
         self.dirty = True
     
     @abstractmethod
-    def get_sql_create_table(self):
-        pass
+    def get_sql_create_table(self) -> str:
+        """abstract method - contains sql 
+        Returns:
+            str: sql to create table on db that is used in this form.
+
+        """
+        sql = ''
+        return sql
 
     def get_sql_update(self):
+        """uses self.formItems dict to create the sql with column names (keys) and values (widget value) for UPDATE
+
+        Returns:
+            str: sql to UPDATE current record with the form values.
+        """
         values = ''
         items = self.formItems.copy()
         del items['id']
@@ -141,7 +160,12 @@ class main(QMainWindow):
 
         return sql
 
-    def get_sql_new(self):
+    def get_sql_new(self) -> str:
+        """uses self.formItems dict to create the sql with column names (keys) and values (widget value)
+
+        Returns:
+            str: sql to insert a new record with the form values.
+        """
         values = ''
         columns = ''
         #create a copy of formItems dict
@@ -165,7 +189,17 @@ class main(QMainWindow):
             '''
         return sql
     
-    def save(self):
+    def save(self) -> str:
+        """Checks if for is dirty - edits have been made -
+        - if dirty: checks if there is an id
+          - if id: Saves the current selecte1d recod with the information on the form. 
+          - else: inserts a new record. 
+        - else: 
+            shows message in status bar - not saved. 
+
+        Returns:
+            str: id of record saved. 
+        """
         if self.dirty:
             id_ = self.id_.getDbInfo()
             if id_:

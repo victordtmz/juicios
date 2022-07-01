@@ -3,10 +3,11 @@ from PyQt6.QtCore import Qt
 from widgets.lineEdits import (lineEdit, 
     lineEditCurrency,lineEditCurrencyWidget, dateWidget, lineEditPhone)
 from widgets.widgets import textEdit, buttonWidget, labelWidget
-from globalElements import constants, form_model
+from globalElements import constants
+from globalElements.models import form
 
 
-class main(form_model.main):
+class main(form.main):
     def __init__(self, db):
         
         super().__init__(db)

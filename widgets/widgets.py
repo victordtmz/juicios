@@ -493,6 +493,7 @@ class tabWidget(QTabWidget):
         self.setTabsClosable(True)
         self.setMinimumHeight(170)
         self.setTabBarAutoHide(True)
+        self.setMovable(True)
         
         #style
         

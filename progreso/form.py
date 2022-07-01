@@ -1,31 +1,31 @@
-from PyQt6.QtWidgets import QWidget, QFormLayout, QScrollArea, QSizePolicy
-from PyQt6.QtCore import Qt
-from widgets.lineEdits import (lineEdit, 
-    lineEditCurrency,lineEditCurrencyWidget, dateWidget, lineEditPhone)
-from widgets.widgets import textEdit, buttonWidget, labelWidget
-from globalElements import constants, form_model
+from widgets.lineEdits import (lineEdit, dateWidget)
+from widgets.widgets import textEdit, labelWidget
+from globalElements.models import form
 
-
-class main(form_model.main):
+class main(form.main):
     def __init__(self, db):
-        self.db = db
+        """extends form_model(extends QMainWindow)
 
+        Args:
+            db (sqlite db): db passed from main 
+        """
+        self.db = db
+ 
     def initiate_super(self):
+        """callss super init function, placed here to be able to pass the db, required for init iu on form_model
+        """
         super().__init__(self.db)
         self.table = 'registros' #USE THIS TO SET SQL FROM HERE ----------------------------
         self.get_sql_update()
         # self.title.setText('Detalles del Trámite')
         
     def configureForm(self):
+        """Creates form widgets, places them on form layout.
+         - creates a dictionary with formItems key == to the db row value, for easy data manipulation 
+        """
         self.date_ = dateWidget(self.fontSize)
         self.title_ = lineEdit(self.fontSize)
         self.description_ = textEdit(self.fontSize)
-        
-
-        # for k,v in self.formItems.items():
-        #     self.form_layout.addRow(labelWidget(k, self.fontSize), v)
-
-
 
         # self.form_layout.addRow(labelWidget('Id:', self.fontSize) ,self.id_)
         self.form_layout.addRow(self.file_)
@@ -42,7 +42,10 @@ class main(form_model.main):
             'description_': self.description_,
             'file_': self.lineEditItems}
 
-    def get_sql_create_table(self):
+    def get_sql_create_table(self) -> str:
+        """Returns:
+            str: CREATE TABLE sql
+        """
         sql = f'''
         --sql
         CREATE TABLE IF NOT EXISTS {self.table} (

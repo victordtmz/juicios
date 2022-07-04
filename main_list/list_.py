@@ -96,6 +96,13 @@ class main(QWidget):
         """
         return self.list.get_row_values()
 
+    def get_row_values_dict(self)->dict:
+        """
+        Returns:
+            dict: Dictionary with row values with headers as keys
+        """
+        return self.list.get_row_values_dict()
+
     def add_activos(self, items):
         """Adds record with font and row height defined on tree.
 

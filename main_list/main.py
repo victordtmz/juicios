@@ -1,16 +1,12 @@
-from cmath import exp
 import shutil
 import sys
 import os
-from turtle import Turtle
-from typing import Iterable
-from urllib import response
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout, QStatusBar, QMainWindow, QGridLayout)
 from PyQt6.QtGui import QIcon, QCursor
 from PyQt6.QtCore import QSortFilterProxyModel, QRegularExpression, Qt
 from globalElements import constants, functions, db
 from widgets import widgets
-from widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox
+from widgets.widgets import buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox, okWarningBox, logger
 from widgets.lineEdits import lineEditFilterGroup
 from main_list import filters, form, list_, edit_form, delete_form
 
@@ -60,6 +56,8 @@ class main(QMainWindow):
         self.config_layout()
         self.showMaximized()
         self.set_connections()
+        self.lg = logger()
+        self.logger = self.lg.logger
 
     def set_connections(self):
         self.filters.selection_model.selectionChanged.connect(self.apply_filter_tipo)
@@ -73,6 +71,7 @@ class main(QMainWindow):
         self.btn_delete.pressed.connect(self.delete_window_open)
         self.btn_edit.pressed.connect(self.edit_window_open)
         self.btn_folder.pressed.connect(self.open_folder)
+        
         # self.btn_details.pressed.connect(self.open_details)
 
 
@@ -391,9 +390,29 @@ class main(QMainWindow):
         pwd = self.delete_warning_box.pwd.getInfo()
         if pwd == '202020':
             self.delete_warning_box.deleteLater()
+            deleted_record = self.list.get_row_values_dict()
             self.list.list.clearSelection()
             self.db.connection.close()
-            shutil.rmtree(folder)
+            try: 
+                shutil.rmtree(folder)
+                # deleted_record = self.list.get_row_values_dict()
+                self.logger.info(f'''Se eliminó el registro: {deleted_record}''')
+            except PermissionError as e:
+                txt = f"""
+                El archivo no pudo ser eliminado debido a que está siendo utilizado por algún otro proceso, cierre todos los procesos e intente nuevamente.
+                Si el problema persiste, reinicie este programa e intente nuevamente. 
+                Error: {e}
+
+                """
+                warning = okWarningBox(txt, 13)
+                warning.exec()
+                
+                return
+            except Exception as e: 
+                warning_text = f'''Se produjo el siguente error al tratar de elimiar el archivo: {e}'''
+                warning = okWarningBox(warning_text, 13)
+                warning.exec()
+                return
             self.requery()
             self.status_bar.showMessage(f'Se ha eliminado el registro siguente:   {folder}', 4000)
         else:
@@ -445,9 +464,6 @@ class main(QMainWindow):
 
     def remove_all_filters(self):
         self.filters.remove_all_filters()
-
-    # def open_details(self):
-    #     pass
 
         
         

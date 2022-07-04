@@ -1,4 +1,4 @@
-
+import logging
 from abc import abstractmethod
 import string
 from tkinter.ttk import Style
@@ -494,6 +494,7 @@ class tabWidget(QTabWidget):
         self.setMinimumHeight(170)
         self.setTabBarAutoHide(True)
         self.setMovable(True)
+        # self.tab_closed.connect(self.before_tab_closes)
         
         #style
         
@@ -559,3 +560,19 @@ class tabWidget(QTabWidget):
         self.tab_closed.emit()
         if index:
             self.removeTab(index)
+
+    # @abstractmethod
+    # def before_tab_closes(self):
+    #     pass
+
+class logger(): 
+    def __init__(self):  
+        self.logger = logging.getLogger()
+        self.logger.setLevel(logging.DEBUG)
+        datestr = '%Y-%m-%d %H:%M:%S'
+        formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(funcName)s Line:%(lineno)d Msg:%(message)s')
+        formatter.datefmt = datestr
+        file_handler = logging.FileHandler('enlace.log', 'a', 'utf-8')
+        file_handler.setFormatter(formatter)
+        
+        self.logger.addHandler(file_handler) 

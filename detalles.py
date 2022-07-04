@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QHBoxLayout, QV
 from PyQt6.QtGui import QCursor
 from PyQt6.QtCore import Qt
 from globalElements import constants, functions
+from widgets import widgets
 from widgets.widgets import spacer, buttonWidget, labelWidget, standardItem, titleBox, treeView, checkBox, tabWidget, okWarningBox
 from main_list.main import main as mainList
 from progreso import main as progreso
@@ -45,9 +46,6 @@ class main(QMainWindow):
         self.tabWidget.tab_closed.connect(self.before_tab_closed)
     
     def open_details(self):
-        # expediente = self.progreso.list.get_values()
-        # if expediente:
-            # self.progreso.expediente = expediente
         self.details = detalles.main(self.progreso.db)
         self.details.expediente = self.expediente
         self.details.table = 'detalles'
@@ -91,19 +89,12 @@ class main(QMainWindow):
         if closed_widget == self.details:
             self.details.save()
         
-
-        
-
-# class tabWidget_(tabWidget):
-#     def __init__(self, size: str = "h1"):
-#         super().__init__(size)
-
-#     def close_tab_requested(self, index):
-#         closed_widget = self.widget(index)
-#         desired_widget = detalles.main
-#         if closed_widget == desired_widget:
-#             print('Got it')
-#         super().close_tab_requested(index)
+    def before_closing(self):
+        tabs = self.tabWidget.count()
+        index = 0
+        while index < tabs:
+            self.tabWidget.widget(index).before_closing()
+            index += 1
 
 
 if __name__ == '__main__':

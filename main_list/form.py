@@ -88,9 +88,6 @@ class main(form.main):
         '''
         return sql
 
-
-        
-    
-
-
-    
+    def before_closing(self):
+        self.save()
+        self.db.connection.close()

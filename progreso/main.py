@@ -188,7 +188,10 @@ class main(QMainWindow):
         else:
             self.form.clear()
         self.form.dirty = False
-        
+
+    def before_closing(self):
+        self.save_record()
+        self.db.connection.close()
 
 
 if __name__ == '__main__':

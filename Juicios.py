@@ -49,11 +49,8 @@ class main(QMainWindow):
 
     def before_tab_closed(self):
         closed_widget = self.tabWidget.currentWidget()
-        if closed_widget == self.details:
-            widgets_count = self.details.tabWidget.count()
-            self.details.progreso.save_record()
-            if widgets_count > 1:
-                print('Se cerraron mas de dos widgets a la vez, configurar save para el resto de los widgets')
+        closed_widget.before_closing()
+        
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

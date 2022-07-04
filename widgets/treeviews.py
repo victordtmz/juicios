@@ -76,8 +76,10 @@ class treeView(QTreeView):
         dict_values = {}
         index = 0
         for value in values:
-            column_header = self.standardModel.horizontalHeaderItem(index).text()
-            dict_values[column_header] = value
+            column_header = self.standardModel.horizontalHeaderItem(index)
+            if column_header:
+                header_text = column_header.text()
+                dict_values[header_text] = value
             index += 1
         return dict_values
 

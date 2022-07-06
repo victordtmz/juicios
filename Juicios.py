@@ -5,7 +5,7 @@ from PyQt6.QtCore import QSortFilterProxyModel
 from globalElements import constants
 from widgets.widgets import tabWidget, okWarningBox
 from main_list.main import main as mainList
-# from progreso import main as progreso
+# from progreso import main as progreso 
 import detalles
 # import mainList  
 
@@ -19,7 +19,7 @@ class main(QMainWindow):
         self.iconEnlace = QIcon( f'{constants.DB_FILES}\icons\enlace_balance.png')
         self.setWindowIcon(self.iconEnlace)
         self.layout_config() 
-        self.set_connections() 
+        self.set_connections()  
 
     def layout_config(self):
         self.main_list = mainList()

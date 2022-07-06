@@ -1,23 +1,20 @@
 from widgets.lineEdits import (lineEdit, dateWidget)
 from widgets.widgets import textEdit, labelWidget
-from globalElements.models import form
+from globalElements.models import form 
 
 class main(form.main):
-    def __init__(self, db):
+    def __init__(self, db_folder):
         """extends form_model(extends QMainWindow)
 
         Args:
             db (sqlite db): db passed from main 
-        """
-        self.db = db
- 
+        """ 
+        self._db_folder = db_folder
     def initiate_super(self):
         """callss super init function, placed here to be able to pass the db, required for init iu on form_model
         """
-        super().__init__(self.db)
-        self.table = 'registros' #USE THIS TO SET SQL FROM HERE ----------------------------
-        self.get_sql_update()
-        # self.title.setText('Detalles del Trámite')
+        super().__init__()
+        self.db.set_db(self._db_folder)
         
     def configureForm(self):
         """Creates form widgets, places them on form layout.
@@ -42,21 +39,29 @@ class main(form.main):
             'description_': self.description_,
             'file_': self.lineEditItems}
 
-    def get_sql_create_table(self) -> str:
-        """Returns:
-            str: CREATE TABLE sql
+    def before_closing(self):
+        self.save()
+        self.db.connection.close()
+
+    def update_record(self, form_values:dict):
+        """Update the record with the current form values
         """
-        sql = f'''
-        --sql
-        CREATE TABLE IF NOT EXISTS {self.table} (
-            id INTEGER PRIMARY KEY,
-            date_ TEXT,
-            title TEXT,
-            description_ TEXT,
-            file_ TEXT
-            );
-        '''
-        return sql
+        self.db.update_record_registros(form_values)
+
+    def insert_record(self,form_values:dict)->str:
+        """Insert a new record with the current form values
+        """
+        return self.db.insert_record_registros(form_values)
+
+    def create_table(self):
+        """Call db function to update the correct record
+        """
+        self.db.create_table_registros()
+
+    # def select_record(self):
+    #     """Call db function to select the correct record
+    #     """
+    #     return self.db.select_registros()
 
 
         

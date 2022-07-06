@@ -6,6 +6,8 @@ from widgets.treeviews import treeView
 from widgets.widgets import labelWidget
 from globalElements import functions
 from widgets.lineEdits import lineEditFilterGroup
+from globalElements import db
+
 
 class main(QWidget):
     """treeview list with search box
@@ -13,9 +15,9 @@ class main(QWidget):
         Args:
             db (sqlite3 db): Database must be instantiated in main and passed to list when oppened. 
         """
-    def __init__(self, db):
+    def __init__(self):
         super().__init__()
-        self.db = db
+        self.db = db.juiciosDB()
         self.init_ui_model()
         self.set_connections_model()
         
@@ -51,6 +53,7 @@ class main(QWidget):
         '''
         return sql
     
+     
     def requery(self):
         """select all recods from 'registros' table and places them in list
         - removes current items
@@ -59,18 +62,29 @@ class main(QWidget):
         - sorts by comlumn 1 (date) descencing. 
         """
         #obtener all elements from activos
-        sql = self.sql_select()
 
-        try: records, labels = self.db.select_dict_labels(sql)
-        except: return
+        # try: records_dict = self.select_records()
+        # except: return
+        records_dict = self.select_records()
+        #create a list of all the keys for the first record
+        labels = records_dict[0].keys()
             
         self.list.remove_all_items()
-        for i in records:
-            self.add_item(i)
+        for i in records_dict:
+            self.add_item(i.values())
         
         self.list.standardModel.setHorizontalHeaderLabels(labels)
         self.configure_list_after_requery()
         
+    @abstractmethod
+    def select_records(self)->tuple:
+        """Call the correct function from db to collect records
+
+        Returns:
+            tupple: tupple of record as dict
+        """
+        return self.db.select_registros_custom_headers()
+
     @abstractmethod
     def configure_list_after_requery(self):
         self.list.setColumnHidden(0, True)

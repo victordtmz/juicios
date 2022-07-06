@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QGroupBox, QGridLayout, QRadioButton, QHBoxLayout
+from PyQt6.QtWidgets import QGroupBox, QRadioButton, QHBoxLayout
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 
@@ -12,7 +12,6 @@ class activoRadioButtons(QGroupBox):
         self.activo = QRadioButton('Activo')
         
         self.layout_ = QHBoxLayout()
-        # self.layout_.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.setLayout(self.layout_)
 
         self.layout_.addWidget(self.activo)

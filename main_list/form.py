@@ -8,15 +8,13 @@ from globalElements.models import form
 
 
 class main(form.main):
-    def __init__(self, db):
-        
-        super().__init__(db)
+    def __init__(self):
+        super().__init__()
     # def __init__(self):
         # super().__init__()
-        self.table = 'detalles' #USE THIS TO SET SQL FROM HERE ----------------------------
-        self.get_sql_update()
+        # self.get_sql_update()
         # self.title.setText('Detalles del Trámite')
-        
+         
     def configureForm(self):
         
         self.cliente = lineEdit(self.fontSize)
@@ -61,33 +59,35 @@ class main(form.main):
             'fecha_':self.fecha,
             'honorarios_': self.honorarios, 
             'telefono': self.telefono,
-            'domicilio': self.domicilio,
+            'domicilio': self.domicilio, 
             'domicilio1': self.domicilio1, 
             'ciudad':self.ciudad, 
             'estado':self.estado,
             'cp': self.cp, 
             'descripcion':self.description}
 
-    def get_sql_create_table(self):
-        sql = f'''
-        --sql
-        CREATE TABLE IF NOT EXISTS {self.table} (
-            id INTEGER PRIMARY KEY,
-            cliente TEXT,
-            expediente TEXT,
-            fecha_ TEXT,
-            honorarios_ REAL,
-            telefono TEXT,
-            domicilio TEXT,
-            domicilio1 TEXT,
-            ciudad TEXT,
-            estado TEXT,
-            cp TEXT,
-            descripcion TEXT
-            );
-        '''
-        return sql
+    
 
     def before_closing(self):
         self.save()
         self.db.connection.close()
+
+    def update_record(self, form_values:dict):
+        """Update the record with the current form values
+        """
+        self.db.update_record_detalles(form_values)
+
+    def insert_record(self,form_values:dict)->str:
+        """Insert a new record with the current form values
+        """
+        self.db.insert_record_detalles(form_values)
+
+    def create_table(self):
+        """Call db function to update the correct record
+        """
+        self.db.create_table_detalles()
+
+    def select_record(self):
+        """Call db function to select the correct record
+        """
+        return self.db.select_detalles()

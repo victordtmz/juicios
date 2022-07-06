@@ -1,9 +1,13 @@
 from abc import abstractmethod
+from distutils import errors
+from sqlite3 import OperationalError
+import sqlite3
 from PyQt6.QtWidgets import QMainWindow,QStatusBar, QWidget, QFormLayout, QScrollArea, QVBoxLayout, QHBoxLayout
 from PyQt6.QtCore import Qt
 from widgets.lineEdits import (lineEdit)
 from widgets.widgets import buttonWidget
 from globalElements import constants
+from globalElements import db
 
 class main(QMainWindow):
     """extends QMainWinidow
@@ -12,15 +16,15 @@ class main(QMainWindow):
         Args:
             db (sqlite or mySql): Databased to be used in connection with form.
         """
-    def __init__(self, db):
+    def __init__(self):
         
         super().__init__()
-        self.table = ''
-        self.db = db
+        # self._db_folder = ''
+        self.db = db.juiciosDB()
         self.fontSize = 13
         self.dirty = False
         self.init_model_ui()
-        self.get_sql_new()
+        # self.get_sql_new()
         
     
     def init_model_ui(self):
@@ -102,13 +106,17 @@ class main(QMainWindow):
             record (dict, optional): key => db column id. value => value to be inserted in corresponding widget. 
         """
         if not record:
-            sql = f''' --sql
-            SELECT * FROM {self.table};''' 
-            try: record = self.db.select_dict(sql)
-            except: return
-            
-            if record:
-                record = record[0]
+            # sql = f''' --sql
+            # SELECT * FROM {self.table};''' 
+            try: 
+                record = self.select_record()
+            except sqlite3.OperationalError:
+                self.create_table()
+                record = self.select_record()
+                
+            # record = self.select_record()
+            # if record:
+            #     record = record[0]
         try: 
             for k, v in self.formItems.items():
                 try: v.populate(record[k])
@@ -121,74 +129,45 @@ class main(QMainWindow):
         """
         self.destroyed.connect(self.save)
         for i in self.formItems.values():
-            i.editingFinished.connect(self.set_form_dirty)
+            i.editingFinished.connect(self.set_dirty)
     
-    def set_form_dirty(self):
+    def set_dirty(self):
         """sets self.dirty to True.
         signal: editingFinished - all of self.formItems widgets 
         """
         self.dirty = True
     
-    @abstractmethod
-    def get_sql_create_table(self) -> str:
-        """abstract method - contains sql 
+    def get_db_values(self)->dict:
+        """Collects all data from self.formItems and returns with db values.
         Returns:
-            str: sql to create table on db that is used in this form.
-
+            dict: 
+                k=> db column
+                v => value for column
         """
-        sql = ''
-        return sql
-
-    def get_sql_update(self):
-        """uses self.formItems dict to create the sql with column names (keys) and values (widget value) for UPDATE
-
-        Returns:
-            str: sql to UPDATE current record with the form values.
-        """
-        values = ''
-        items = self.formItems.copy()
-        del items['id']
-        for k,v in items.items():
-            value = v.getDbInfo()
-            values += f"{k} = '{value}',"
-        values = values[:-1]
-        
-        sql = f'''
-            --sql
-            UPDATE {self.table} SET {values} WHERE id = ?;
-            '''
-
-        return sql
-
-    def get_sql_new(self) -> str:
-        """uses self.formItems dict to create the sql with column names (keys) and values (widget value)
-
-        Returns:
-            str: sql to insert a new record with the form values.
-        """
-        values = ''
-        columns = ''
-        #create a copy of formItems dict
-        items = self.formItems.copy()
-        #remove id form copy
-        del items['id']
-        #from the key(same as db column name) value(widget that contains the value) pairs of the 
-        for k,v in items.items():
-            value = v.getDbInfo()
-            #get all column names from keys, separated by a comma
-            columns += f"{k},"
-            #get all the values, separated by a comma
-            values += f"'{value}',"
-        #remove comma from both values
-        columns = columns[:-1]
-        values = values[:-1]
-        #conform and return sql
-        sql = f'''
-            --sql
-            INSERT INTO {self.table} ({columns}) VALUES ({values});
-            '''
-        return sql
+        form_values = {}
+        for k,v in self.formItems.items():
+            form_values[k] = v.getDbInfo()
+        return form_values
     
+    @abstractmethod
+    def select_record(self, form_values:dict):
+        """Call db function to select the correct record
+        """
+    
+    @abstractmethod
+    def update_record(self, form_values:dict):
+        """Call db function to update the correct record
+        """
+
+    @abstractmethod
+    def insert_record(self,form_values:dict)->str:
+        """Call db function to update the correct record
+        """
+    @abstractmethod
+    def create_table(self):
+        """Call db function to create the correct table
+        """
+
     def save(self) -> str:
         """Checks if for is dirty - edits have been made -
         - if dirty: checks if there is an id
@@ -202,17 +181,13 @@ class main(QMainWindow):
         """
         if self.dirty:
             id_ = self.id_.getDbInfo()
+            form_values = self.get_db_values()
             if id_:
-                sql = self.get_sql_update()
-                self.db.save(sql, (id_,))
+                self.update_record(form_values)
                 self.status_bar.showMessage('El registro se actualizó exitosamente', 10000)
-                
             else:
-                sql = self.get_sql_create_table()
-                self.db.execute(sql)
-                sql = self.get_sql_new()
-                id_ = self.db.save(sql)
-                self.id_.populate(id_)
+                id_ = self.insert_record(form_values)
+                # self.id_.populate(id_)
                 self.status_bar.showMessage('El registro se creó exitosamente', 10000)
             self.dirty = False
             return id_

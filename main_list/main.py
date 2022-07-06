@@ -121,10 +121,8 @@ class main(QMainWindow):
         self.list.list.setModel(self.proxy_search)
 
     def configure_form(self):
-        self.db = db.main()
-        self.form = form.main(self.db)
-        # self.form.table = 'detalles'
-        # self.form.db = self.db
+        self.form = form.main()
+        # self.db_root = self.form.db.db_root
 
 
     def config_layout(self):
@@ -272,7 +270,9 @@ class main(QMainWindow):
     def selectionChanged(self):
         self.save_detalles()
         #before changing db parameters, save
-        self.db.expediente = self.list.get_values()
+        file_path = self.list.get_file_path()
+        self.form.db.set_db(file_path) 
+        # self.form.db.db_root = self.list.get_file_path()
         self.form.populate()
        
 
@@ -392,7 +392,7 @@ class main(QMainWindow):
             self.delete_warning_box.deleteLater()
             deleted_record = self.list.get_row_values_dict()
             self.list.list.clearSelection()
-            self.db.connection.close()
+            self.form.db.connection.close()
             try: 
                 shutil.rmtree(folder)
                 # deleted_record = self.list.get_row_values_dict()
@@ -448,7 +448,7 @@ class main(QMainWindow):
             current_path = f'{constants.ROOT_ENLACE}\{current_info[2]}\{current_info[0]}\{current_info[1]}'
             new_path = f'{constants.ROOT_ENLACE}\{activo}\{tipo}\{expediente}'
             self.list.list.clearSelection()
-            self.db.connection.close()
+            self.form.db.connection.close()
             try:
                 shutil.move(current_path, new_path)
             except:

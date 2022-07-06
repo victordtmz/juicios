@@ -89,16 +89,16 @@ class main(QMainWindow):
         self.files_tree.txtFilePath.setText(f'{self.folder}')
         
         #init Form
-        self.db = db.main()
-        self.db.expediente = self.expediente
-        self.form = form.main(self.db)
+        self.db = db.juiciosDB()
+        self.db.set_db(self.folder)
+        self.form = form.main(self.folder)
         self.form.file_ = self.files_tree.layoutLineEditFileBox
         self.form.lineEditItems = self.files_tree.lineEditItems
         
         self.form.initiate_super()
 
         # init list
-        self.list = list_.main(self.db)
+        self.list = list_.main(self.folder)
 
         self.centralWidget_ = QWidget()
         self.layout_ = QGridLayout()
@@ -135,12 +135,20 @@ class main(QMainWindow):
         - if list has no selection, a new record will be made.
         - after save, form will requery to update itself and the saved record will be selected. 
         """
+        #prev_id containg the value of the saved record - what was on the form thus the last record that was selected
+        # or the new record created.
         prev_id = self.form.save() 
         if prev_id:
             curr_id = self.list.get_id()
             self.requery()
-            self.list.select_record_by_id(curr_id)
+            if curr_id:
+                #if there is a value here, it means a new record was selected (selection changed before save)
+                self.list.select_record_by_id(curr_id)
+            else:
+                #if curr_id is none, than select the saved record
+                self.list.select_record_by_id(str(prev_id))
         else:
+        # if nothing was saved, it will be null and form will populate with current selection
             self.populate_form()
        
     def delete_record(self):
@@ -158,13 +166,7 @@ class main(QMainWindow):
         #if warning response is yes, delete the record. 
         if delete_response == QMessageBox.StandardButton.Yes:
             record_id = record['id']
-            sql = '''
-            --sql
-            DELETE FROM registros WHERE id = ?;'''
-            self.db.connect()
-            self.db.cursor.execute(sql, (record_id,))
-            self.db.connection.commit()
-            self.db.connection.close()
+            self.db.delete_record_registros(record_id)
             self.requery()
 
     def new_record(self):
@@ -191,7 +193,8 @@ class main(QMainWindow):
 
     def before_closing(self):
         self.save_record()
-        self.db.connection.close()
+        if hasattr(self.db, 'juiciosDB'):
+            self.db.connection.close()
 
 
 if __name__ == '__main__':

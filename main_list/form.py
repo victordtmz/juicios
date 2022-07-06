@@ -70,7 +70,7 @@ class main(form.main):
 
     def before_closing(self):
         self.save()
-        self.db.connection.close()
+        self.db.connection.close() 
 
     def update_record(self, form_values:dict):
         """Update the record with the current form values

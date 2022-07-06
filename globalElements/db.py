@@ -9,17 +9,18 @@ from globalElements import constants
 class juiciosDB:
     def __init__(self) -> None:
         pass
-        # self.db_root = ''
+        self.db_root = ''
         # self._db_folder = f'{self.db_root}\desgloce'
         # self._db = f'{self._db_folder}\\registros.avd'
     
     def set_db(self, db_root):
+        self.db_root = db_root
         self._db_folder = f'{db_root}\desgloce'
         self._db = f'{self._db_folder}\\registros.avd'
 
     def connect(self):
-        # if not self.db_root:
-        #     return
+        if not self.db_root:
+            return
         try: 
             self.connection = sqlite3.connect(self._db)
         except: 

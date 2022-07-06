@@ -46,9 +46,11 @@ class main(QMainWindow):
         self.tabWidget.tab_closed.connect(self.before_tab_closed)
     
     def open_details(self):
-        self.details = detalles.main(self.progreso.db)
-        self.details.expediente = self.expediente
-        self.details.table = 'detalles'
+        self.details = detalles.main()
+        folder = f'{constants.ROOT_ENLACE}\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}'
+        self.details.db.set_db(folder)
+        # self.details.expediente = self.expediente
+        # self.details.table = 'detalles' 
         self.details.populate()
         self.tabWidget.addTab(self.details, '  Detalles del caso  ')
         self.tabWidget.setCurrentWidget(self.details)

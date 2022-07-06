@@ -36,7 +36,7 @@ class main(QMainWindow):
         expediente = self.main_list.list.get_values()
         if expediente:
             # self.progreso.expediente = expediente
-            self.details = detalles.main(expediente)
+            self.details = detalles.main(expediente) 
             self.tabWidget.addTab(self.details, expediente[1])
             self.tabWidget.setCurrentWidget(self.details)
         else:

@@ -1,19 +1,17 @@
-from abc import abstractmethod
 import sys
 from PyQt6.QtWidgets import (QGridLayout,QApplication, QHBoxLayout, QWidget, QStatusBar, QMainWindow)
 from PyQt6.QtGui import QIcon, QCursor
 from PyQt6.QtCore import Qt
 from globalElements import constants
-from widgets.widgets import yesNoWarningBox, buttonWidget, QMessageBox, okWarningBox, logger
-from globalElements.models import form, list
+from widgets.widgets import yesNoWarningBox, buttonWidget, QMessageBox
+from progreso import form, list_
 from globalElements import db
 from widgets.filesTree import filesTree
 
 class main(QMainWindow):
     """extends the QMainWindow Widget
     Contains list, form, and files folder for all notes, acuerdos and any general item for the juicios.
-    model that will be used to create similar elements.
- 
+
     Args:
         expediente (list): 
             0 => Tipo. ex('Administrativo', 'Civil', 'Tramites', etc...)
@@ -26,8 +24,6 @@ class main(QMainWindow):
         self.folder = f'{constants.ROOT_ENLACE}\{self.expediente[2]}\{self.expediente[0]}\{self.expediente[1]}'
         self.initUi()
         self.requery()
-        self.lg = logger()
-        self.logger = self.lg.logger
     
     def __repr__(self) -> str:
         return f'''Tab widget child => Folder: {self.folder}'  '''
@@ -49,15 +45,15 @@ class main(QMainWindow):
         self.showMaximized()
         self.set_connections()
 
-    def set_connections(self):
-        """Connect all signals to the correspoinding event. 
-        """
-        self.list.list.selectionModel().selectionChanged.connect(self.selectionChanged)
-        self.form.btn_save.pressed.connect(self.save_record)
-        self.form.btn_cancel.pressed.connect(self.cancel_form_edit)
-        self.btn_requery.pressed.connect(self.requery)
-        self.btn_new.pressed.connect(self.new_record)
-        self.btn_delete.pressed.connect(self.delete)
+    # def set_connections(self):
+    #     """Connect all signals to the correspoinding event. 
+    #     """
+    #     self.list.list.selectionModel().selectionChanged.connect(self.selectionChanged)
+    #     self.form.btn_save.pressed.connect(self.save_record)
+    #     self.form.btn_cancel.pressed.connect(self.cancel_form_edit)
+    #     self.btn_requery.pressed.connect(self.requery)
+    #     self.btn_new.pressed.connect(self.new_record)
+        # self.btn_delete.pressed.connect(self.delete_record)
 
 
 
@@ -94,15 +90,15 @@ class main(QMainWindow):
         
         #init Form
         self.db = db.juiciosDB()
-        self.db.expediente = self.expediente
-        self.form = form.main(self.db)
+        self.db.set_db(self.folder)
+        self.form = form.main(self.folder)
         self.form.file_ = self.files_tree.layoutLineEditFileBox
         self.form.lineEditItems = self.files_tree.lineEditItems
         
         self.form.initiate_super()
 
         # init list
-        self.list = list.main(self.db)
+        self.list = list_.main(self.folder)
 
         self.centralWidget_ = QWidget()
         self.layout_ = QGridLayout()
@@ -139,36 +135,41 @@ class main(QMainWindow):
         - if list has no selection, a new record will be made.
         - after save, form will requery to update itself and the saved record will be selected. 
         """
+        #prev_id containg the value of the saved record - what was on the form thus the last record that was selected
+        # or the new record created.
         prev_id = self.form.save() 
         if prev_id:
             curr_id = self.list.get_id()
             self.requery()
-            self.list.select_record_by_id(curr_id)
+            if curr_id:
+                #if there is a value here, it means a new record was selected (selection changed before save)
+                self.list.select_record_by_id(curr_id)
+            else:
+                #if curr_id is none, than select the saved record
+                self.list.select_record_by_id(str(prev_id))
         else:
+        # if nothing was saved, it will be null and form will populate with current selection
             self.populate_form()
        
-    @abstractmethod
-    def delete_record(self, id_):
-        self.db.delete_termino(id_)
-    
-    def delete(self):
-        record = self.list.get_row_values_dict()
-        if record:
-            text = ''
-            #use the dict values to display the recods on the warning to delete
-            for k,v in record.items():
-                text += f'{k}: {v} \n'
-            waring = yesNoWarningBox(text, 13)
-            delete_response = waring.exec()
-            #if warning response is yes, delete the record. 
-            if delete_response == QMessageBox.StandardButton.Yes:
-                self.delete_record(record['id'])
-                self.logger.info(f'''Se eliminó el registro: {record}''')
-                self.requery()
-                
-        else: 
-            msg = okWarningBox('Seleccione el registro que desea eliminar.', 13)   
-            msg.exec() 
+    def delete_record(self, id_): 
+        """Deletes selected record from db, warning pop-up before delete.
+        """
+        self.db.delete_record_registros(id_)
+
+        #Get the record as a dict, with the header values of the list
+        # record = self.list.get_row_values_dict()
+        # text = ''
+        # #use the dict values to display the recods on the warning to delete
+        # for k,v in record.items():
+        #     text += f'{k}: {v} \n'
+
+        # waring = yesNoWarningBox(text, 13)
+        # delete_response = waring.exec()
+        # #if warning response is yes, delete the record. 
+        # if delete_response == QMessageBox.StandardButton.Yes:
+        #     record_id = record['id']
+        #     self.db.delete_record_registros(record_id)
+        #     self.requery()
 
     def new_record(self):
         """Clears selection and form, sets todays date on form and focuses on title 
@@ -191,7 +192,11 @@ class main(QMainWindow):
         else:
             self.form.clear()
         self.form.dirty = False
-        
+
+    def before_closing(self):
+        self.save_record()
+        if hasattr(self.db, 'juiciosDB'):
+            self.db.connection.close()
 
 
 if __name__ == '__main__':
